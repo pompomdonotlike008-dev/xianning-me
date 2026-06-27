@@ -45,10 +45,17 @@ const base = import.meta.env.BASE_URL;
           tag="工具"
         />
         <ArticleCard
-          title="1192 号文深度解读：电费怎么省？谁赚谁亏？"
-          date="2026-06-12"
-          summary="套入江西真实电价，升级为三种模式横向对比。发现两部制下绿电与传统同价——关键在临界负载率。"
+          title="1192 号文深度解读（一）：从零搭建电费收益模型"
+          date="2026-06-07"
+          summary="搞清楚电费结构→推导临界负载率公式→三种场景算总账。核心发现：β > α 时绿电直连才省钱。理论基础版。"
           href={`${base}energy/articles/1192-interpretation/`}
+          tag="政策"
+        />
+        <ArticleCard
+          title="1192 号文深度解读（二）实战版：套入江西真实电价"
+          date="2026-06-12"
+          summary="在第一版基础上修正：730h月小时、江西实际电价、三种模式横向比对。核心发现：两部制绿电与传统同价，容量制只有β>46%才省。"
+          href={`${base}energy/articles/1192-practical/`}
           tag="政策"
         />
         <ArticleCard
