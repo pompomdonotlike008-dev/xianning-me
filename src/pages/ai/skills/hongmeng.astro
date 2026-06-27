@@ -1,0 +1,86 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title="hongmeng：Web App → 鸿蒙原生 AppGallery 上架流水线"
+  description="完整的鸿蒙上架流水线 Skill：ArkTS 脚手架 → DevEco 构建 → 证书签名 → AGC API 自动提交。经历了 SOSO App 的全流程实战验证。"
+  date="2026-06-27"
+  tag="Skill"
+  backUrl={`${import.meta.env.BASE_URL}ai`}
+  backLabel="AI 专题"
+>
+  <p><strong>一句话：</strong>把任何 Web App 转成鸿蒙原生应用，自动上架华为应用市场。这是从 SOSO App 真实项目里长出来的 Skill，每条指令都踩过坑、改过 bug。</p>
+
+  <hr />
+
+  <h2>能做什么</h2>
+  <ul>
+    <li>📱 接收一个 Web App 的 HTML/CSS/JS，自动生成 ArkTS 工程结构</li>
+    <li>🏗️ 调用 DevEco Studio 的 hvigor 构建工具，输出签名后的 .app 包</li>
+    <li>📤 通过 AGC API 自动提交应用到华为应用市场</li>
+    <li>🔄 支持审核驳回后的一键修复和重新提交</li>
+  </ul>
+
+  <hr />
+
+  <h2>真实案例：SOSO App 全流程</h2>
+  <p>SOSO 是一款针对高血脂、脂肪肝中青年群体的健康管理 App。经历：</p>
+
+  <div class="skill-detail-grid">
+    <div class="skill-detail-card">
+      <h4>6 月 1 日</h4>
+      <p>PWA 原型验证产品逻辑，打包为 zip/apk</p>
+    </div>
+    <div class="skill-detail-card">
+      <h4>6 月 17 日</h4>
+      <p>创建 ArkTS 工程：9 页面 + 8 组件 + 数据层</p>
+    </div>
+    <div class="skill-detail-card">
+      <h4>6 月 19 日</h4>
+      <p>首次 AGC 提交审核 🔥</p>
+    </div>
+    <div class="skill-detail-card green">
+      <h4>6 月 27 日</h4>
+      <p>修复驳回问题后重新提交，审核通过</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <h2>踩过的 4 个大坑</h2>
+
+  <h3>坑 1：AGC 只要 .app 不要 .hap</h3>
+  <p>构建命令必须用 <code>assembleApp</code> 而非 <code>assembleHap</code>。.hap 是鸿蒙的普通安装包格式，但 AppGallery 只接受 .app 格式。</p>
+
+  <h3>坑 2：多语言资源必须完整</h3>
+  <p>entry 模块必须有独立的 <code>color.json5</code> 和完整多语言资源。审核驳回原因之一：任务列表白屏——因为启动窗口引用了 entry 模块的颜色变量，但 entry 根本没有 color.json5。</p>
+
+  <blockquote>
+    <p><strong>教训：</strong>AppScope 的资源配置不代表 entry 模块能用。两层资源都要配齐。</p>
+  </blockquote>
+
+  <h3>坑 3：应用信息页图标是独立上传的</h3>
+  <p>包内图标改了，但 AGC 应用信息页的图标没改 → 审核告警"默认语言图标与简体中文图标存在较大差异"。修复：包内 <code>zh_CN/media/</code> 补图标 + AGC 后台重新上传。</p>
+
+  <h3>坑 4：API Level 上限</h3>
+  <p>AGC 限制 API Level ≤ 23，但本地 DevEco 可能已升级。解决方案：<code>compileSdkVersion=24</code> + <code>targetSdkVersion=22</code>——用高版本 SDK 编译，目标 API 满足限制。</p>
+
+  <hr />
+
+  <h2>签名体系</h2>
+  <pre>signing/
+├── release-keypair.jks     # 发布密钥对
+├── SOSO Release Cert.cer   # 华为颁发证书
+├── SOSO ProfileRelease.p7b # 发布配置文件
+└── agc-config.json         # AGC API 凭据</pre>
+
+  <hr />
+
+  <h2>复用场景</h2>
+  <p>任何 Web App 要上架鸿蒙市场时，直接调用这套流水线。搭配 <code>frontend-design</code> Skill 形成完整链路：</p>
+  <p style="text-align:center;font-family:var(--font-mono);font-size:1.1rem;padding:24px;background:var(--bg-card);border-radius:14px;">
+    <strong>frontend-design → hongmeng</strong><br/>
+    <span style="color:var(--text-secondary);">Web 设计 → 鸿蒙 AppGallery 上架</span>
+  </p>
+</ArticleLayout>

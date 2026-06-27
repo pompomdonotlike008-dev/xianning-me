@@ -1,0 +1,63 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title="app-builder：HTML/CSS/JS → 签名 Android APK"
+  description="一键把单页 Web App 打包为签名的 Android APK。Nitron 脚手架 → Gradle 构建 → v1+v2+v3 三重签名。"
+  date="2026-06-27"
+  tag="Skill"
+  backUrl={`${import.meta.env.BASE_URL}ai`}
+  backLabel="AI 专题"
+>
+  <p><strong>一句话：</strong>把任何单页 HTML/CSS/JS 转成可以直接安装的 Android APK。三重签名，Android 高版本不拒装。</p>
+
+  <hr />
+
+  <h2>能力</h2>
+  <ul>
+    <li>📦 自动生成 Nitron 脚手架（Android WebView 壳工程）</li>
+    <li>🔨 Gradle 构建，输出 debug + release APK</li>
+    <li>🔐 uber-apk-signer v1+v2+v3 三重签名</li>
+    <li>📱 输出文件直接拖到手机上安装</li>
+  </ul>
+
+  <hr />
+
+  <h2>踩过的坑</h2>
+
+  <div class="skill-detail-grid">
+    <div class="skill-detail-card red">
+      <h4>坑 1：fetch() 对 file:// 无效</h4>
+      <p>APK 内 WebView 用 file:// 协议加载页面，fetch() 请求全部失败。所有页面必须内联为单页 SPA。</p>
+    </div>
+    <div class="skill-detail-card red">
+      <h4>坑 2：IndexedDB 不可用</h4>
+      <p>Android WebView 不支持 IndexedDB，需改用 localStorage。涉及数据持久化的逻辑要提前适配。</p>
+    </div>
+    <div class="skill-detail-card green">
+      <h4>坑 3：三重签名是必须的</h4>
+      <p>只有 v1 签名 → Android 7+ 警告。只有 v1+v2 → Android 11+ 拒装。必须 v1+v2+v3 全覆盖。</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <h2>构建流程</h2>
+  <pre>1. 接收 HTML/CSS/JS 源文件
+2. 生成 Nitron 项目（Android WebView 壳）
+3. 将源文件内联注入到 WebView 入口
+4. Gradle 构建 release APK
+5. uber-apk-signer 三重签名
+6. 输出 signed-release.apk</pre>
+
+  <hr />
+
+  <h2>与 hongmeng 的关系</h2>
+  <p><code>app-builder</code> 是 Android 路径，<code>hongmeng</code> 是鸿蒙路径。两者互补，覆盖双端。同一个 Web App 可以先打出 APK 快速分发测试，验证通过后再走鸿蒙流程上架 AppGallery。</p>
+
+  <p style="text-align:center;font-family:var(--font-mono);font-size:1.1rem;padding:24px;background:var(--bg-card);border-radius:14px;">
+    <strong>frontend-design → app-builder</strong><br/>
+    <span style="color:var(--text-secondary);">Web 设计 → APK 快捷分发</span>
+  </p>
+</ArticleLayout>

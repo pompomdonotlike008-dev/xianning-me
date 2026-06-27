@@ -1,0 +1,80 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title="wechat-daily：公众号日报自动生成与草稿推送"
+  description="自动搜索新能源 & AI 领域当日动态，编译为格式化日报，注入公众号后台草稿。用户只需在手机上点「发布」。"
+  date="2026-06-27"
+  tag="Skill"
+  backUrl={`${import.meta.env.BASE_URL}ai`}
+  backLabel="AI 专题"
+>
+  <p><strong>一句话：</strong>每天自动搜集新能源和 AI 动态，排版成日报格式，直接创建公众号草稿。你只需要手机上点一下发布。</p>
+
+  <hr />
+
+  <h2>工作流</h2>
+  <pre>1. 信息搜集
+    ├─ 搜索新能源政策动态（国家能源局、各省发改委）
+    └─ 搜索 AI 工具/模型动态（GitHub、技术博客）
+2. 编译排版
+    ├─ 格式化标题 + 摘要 + 链接
+    ├─ 插入公众号固定模板
+    └─ 添加免责声明和关注引导
+3. 注入草稿
+    ├─ 通过 CDP 操作微信公众平台后台
+    ├─ 读取当前模板 HTML
+    └─ 创建草稿，填入 HTML
+4. 完成 → 用户在手机端点「发布」</pre>
+
+  <hr />
+
+  <h2>关键细节</h2>
+
+  <div class="skill-detail-grid">
+    <div class="skill-detail-card">
+      <h4>模板 HTML 结构会变</h4>
+      <p>微信后台的草稿模板 HTML 结构不是固定的，版本更新时可能改变。每次注入前需要重新读取模板，动态匹配当前的 DOM 结构。</p>
+    </div>
+    <div class="skill-detail-card green">
+      <h4>自动化 ≠ 全自动</h4>
+      <p>最终发布权始终在用户手里。Skill 只做采集 + 排版 + 草稿，不做自动发布。这既是安全边界，也是质量把控。</p>
+    </div>
+    <div class="skill-detail-card orange">
+      <h4>CDP 驱动的浏览器操作</h4>
+      <p>登录态通过 Chrome DevTools Protocol 维持。需要在本地运行一个 Chrome 实例，Skill 通过 CDP 连接到微信后台进行操作。</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <h2>日报格式示例</h2>
+  <pre>
+🌅 新能源 & AI 日报 | 2026.06.27
+
+━━━━━━━━━━━━━━━
+
+🔋 新能源
+• 国家能源局发布 XX 通知
+• 江西省 XX 项目获批
+• XX 省调整输配电价
+
+🤖 AI
+• Claude 4.6 发布新功能
+• XX 开源模型登顶榜单
+• Obsidian 发布 XX 插件
+
+━━━━━━━━━━━━━━━
+
+📮 更多深度内容 →
+关注公众号「王炸小纸条」</pre>
+
+  <hr />
+
+  <h2>与其他 Skill 的组合</h2>
+  <p style="text-align:center;font-family:var(--font-mono);font-size:1.1rem;padding:24px;background:var(--bg-card);border-radius:14px;">
+    <strong>wechat-daily + web-access</strong><br/>
+    <span style="color:var(--text-secondary);">日报采集 → 公众号草稿自动化</span>
+  </p>
+</ArticleLayout>

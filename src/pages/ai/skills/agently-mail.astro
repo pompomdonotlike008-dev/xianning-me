@@ -1,0 +1,75 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title="agently-mail：自然语言操作 QQ 邮箱"
+  description="通过 agently-cli 命令行工具操作邮件：发送、回复、转发、搜索、读取、下载附件。OAuth 授权，Claude Code 原生集成。"
+  date="2026-06-27"
+  tag="Skill"
+  backUrl={`${import.meta.env.BASE_URL}ai`}
+  backLabel="AI 专题"
+>
+  <p><strong>一句话：</strong>用自然语言让 Claude Code 帮你发邮件、查收件箱、回复邮件、下载附件。基于腾讯 Agent 原生邮箱方案。</p>
+
+  <hr />
+
+  <h2>能力</h2>
+  <ul>
+    <li>✉️ <strong>发送邮件</strong>——"帮我给张三发一封邮件，内容是……"</li>
+    <li>📥 <strong>搜索邮件</strong>——"找一下上周张三发的那封关于合同的邮件"</li>
+    <li>↩️ <strong>回复/转发</strong>——"回复李四的邮件，说收到，明天处理"</li>
+    <li>📎 <strong>下载附件</strong>——"把王五发来的 PDF 下载下来"</li>
+    <li>📊 <strong>管理收件箱</strong>——"把未读的营销邮件归档"</li>
+  </ul>
+
+  <hr />
+
+  <h2>技术架构</h2>
+  <pre>
+Claude Code (自然语言指令)
+    │
+    ▼
+agently-mail Skill
+    │
+    ▼
+agently-cli (OAuth 授权 + QQ 邮箱 API)
+    │
+    ▼
+QQ 邮箱服务器</pre>
+
+  <p>核心是 <code>agently-cli</code>——一个腾讯提供的命令行邮件工具，通过 OAuth 授权访问 QQ 邮箱。Skill 负责把 Claude Code 的自然语言指令翻译成 agently-cli 的命令行参数。</p>
+
+  <hr />
+
+  <h2>使用场景</h2>
+
+  <div class="skill-detail-grid">
+    <div class="skill-detail-card">
+      <h4>场景 1：批量处理</h4>
+      <p>"把所有标记为重要但超过一周没回的邮件列出来，草拟回复。"</p>
+    </div>
+    <div class="skill-detail-card">
+      <h4>场景 2：附件提取</h4>
+      <p>"找出上个月所有带 xlsx 附件的邮件，下载附件，汇总数据。"</p>
+    </div>
+    <div class="skill-detail-card">
+      <h4>场景 3：邮件总结</h4>
+      <p>"总结一下今天的邮件，按重要性排序，列出需要我回复的。"</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <h2>安全设计</h2>
+  <ul>
+    <li>🔐 OAuth 授权，不需要提供邮箱密码</li>
+    <li>🔐 权限可随时在 QQ 邮箱设置中撤销</li>
+    <li>🔐 所有操作通过 agently-cli 代理，Skill 不直接接触邮件数据</li>
+    <li>🔐 发送邮件前会展示预览，用户确认后才执行</li>
+  </ul>
+
+  <blockquote>
+    <p><strong>理念：</strong>Agent 原生邮箱——不是「帮你看邮件」，而是「你的 Agent 有自己的邮箱，可以独立完成邮件任务」。</p>
+  </blockquote>
+</ArticleLayout>
