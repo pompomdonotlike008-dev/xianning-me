@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="AI" description="Claude Code Skill 工具箱、AI 工作流搭建、Obsidian 知识管理实践。6 个自创 Skill，从实际项目中长出来。">
@@ -16,6 +18,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <section class="section-block">
       <h2>🏗️ 自创 Skill（6 个）</h2>
       <div class="skill-grid">
+
+        <!-- hongmeng -->
         <div class="skill-card card">
           <div class="skill-header">
             <span class="skill-icon">📱</span>
@@ -24,12 +28,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <span class="skill-desc">Web App → 鸿蒙原生 ArkTS → AppGallery 上架</span>
             </div>
           </div>
-          <p>完整的鸿蒙上架流水线：脚手架 → 构建签名 → AGC 提交。支撑 SOSO App 成功上架。</p>
+          <p>完整的鸿蒙上架流水线：脚手架 → 构建签名 → AGC 提交。支撑 SOSO App 成功上架华为应用市场。</p>
           <div class="skill-tags">
             <span>ArkTS</span><span>AGC</span><span>DevEco</span>
           </div>
         </div>
 
+        <!-- app-builder -->
         <div class="skill-card card">
           <div class="skill-header">
             <span class="skill-icon">📦</span>
@@ -38,17 +43,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <span class="skill-desc">HTML/CSS/JS → 签名 Android APK</span>
             </div>
           </div>
-          <p>Nitron 脚手架 → Gradle 构建 → v1+v2+v3 三重签名。与 hongmeng 互补，覆盖双端。</p>
+          <p>Nitron 脚手架 → Gradle 构建 → v1+v2+v3 三重签名。踩坑：APK 内 fetch() 对 file:// 无效、WebView 不支持 IndexedDB。</p>
           <div class="skill-tags">
             <span>Gradle</span><span>Android</span><span>APK</span>
           </div>
         </div>
 
-        <div class="skill-card card">
+        <!-- green-power-calc -->
+        <a href="https://pompomdonotlike008-dev.github.io/green-power-calculator/" target="_blank" rel="noopener" class="skill-card card skill-card-link">
           <div class="skill-header">
             <span class="skill-icon">⚡</span>
             <div>
-              <h3>green-power-calc</h3>
+              <h3>green-power-calc <span class="external-icon">↗</span></h3>
               <span class="skill-desc">1192 号文三模式绿电电费计算器</span>
             </div>
           </div>
@@ -56,8 +62,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div class="skill-tags">
             <span>政策模型</span><span>GitHub Pages</span>
           </div>
-        </div>
+        </a>
 
+        <!-- wechat-daily -->
         <div class="skill-card card">
           <div class="skill-header">
             <span class="skill-icon">📰</span>
@@ -66,17 +73,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <span class="skill-desc">公众号「王炸小纸条」每日日报自动生成</span>
             </div>
           </div>
-          <p>自动搜索新能源 & AI 动态 → 编译为格式化日报 → 注入公众号草稿。只需点发布。</p>
+          <p>自动搜索新能源 & AI 动态 → 编译为格式化日报 → 注入公众号草稿。用户只需在手机上点发布。</p>
           <div class="skill-tags">
             <span>自动化</span><span>微信公众号</span>
           </div>
         </div>
 
-        <div class="skill-card card">
+        <!-- agent-reach -->
+        <a href="https://github.com/Panniantong/Agent-Reach" target="_blank" rel="noopener" class="skill-card card skill-card-link">
           <div class="skill-header">
             <span class="skill-icon">🌐</span>
             <div>
-              <h3>agent-reach</h3>
+              <h3>agent-reach <span class="external-icon">↗</span></h3>
               <span class="skill-desc">14+ 互联网平台统一读/搜接口</span>
             </div>
           </div>
@@ -84,8 +92,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div class="skill-tags">
             <span>Python</span><span>开源</span><span>API</span>
           </div>
-        </div>
+        </a>
 
+        <!-- agently-mail -->
         <div class="skill-card card">
           <div class="skill-header">
             <span class="skill-icon">✉️</span>
@@ -169,6 +178,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .skill-card {
     padding: 22px 24px;
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .skill-card-link:hover {
+    opacity: 1;
+  }
+
+  .skill-card-link:hover h3 {
+    color: var(--accent-blue);
   }
 
   .skill-header {
@@ -189,6 +209,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-weight: 700;
     margin-bottom: 2px;
     font-family: var(--font-mono);
+    color: var(--accent-blue);
+    transition: color 0.2s;
+  }
+
+  .external-icon {
+    font-size: 0.75rem;
+    color: var(--text-placeholder);
+    font-family: var(--font-sans);
+    font-weight: 400;
+  }
+
+  .skill-card-link:hover .external-icon {
     color: var(--accent-blue);
   }
 

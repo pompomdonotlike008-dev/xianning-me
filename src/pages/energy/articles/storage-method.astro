@@ -1,0 +1,104 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title="储能配置原理：吞/吐框架完整推导"
+  description="从源荷错配出发，用吞侧（充电需求）和吐侧（放电需求）统一储能配置的计算逻辑。"
+  date="2026-06-27"
+  tag="方法"
+>
+  <p>光伏装机的 15%，配两小时。</p>
+  <p>这是最常见的做法。</p>
+  <p><strong>也是错的。</strong></p>
+  <p>在一个真实园区里——负荷每天在变，光伏中午翻涌晚上归零，风电忽大忽小。15% 这条经验法则，可能让你多花两千万，也可能让你在第一个无风的夜晚就被电网罚款。</p>
+  <p>所以换一种思路。</p>
+
+  <hr />
+
+  <h2>不从装机比例出发。从目标倒推。</h2>
+  <p>储能就做两件事。</p>
+  <p><strong>吞。</strong> 午间光伏漫出来，负荷喝不完，储能接住。</p>
+  <p><strong>吐。</strong> 夜晚发电沉下去，负荷还站着，储能放出来。</p>
+  <p>最终只需要两个数字。多少 MW，多少 MWh。吞和吐分开算，然后取大。</p>
+
+  <hr />
+
+  <h2>先看三个数</h2>
+  <p>650 号文和 688 号文给了三个硬门槛。不是建议。</p>
+
+  <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+    <tr><td style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);"><strong>自发自用 ÷ 发电量</strong></td><td style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);">≥ 60%</td></tr>
+    <tr><td style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);"><strong>自发自用 ÷ 用电量</strong></td><td style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);">≥ 30%</td></tr>
+    <tr><td style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);"><strong>上网电量 ÷ 发电量</strong></td><td style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);">≤ 20%</td></tr>
+  </table>
+
+  <p>三个全绿，储能可能不需要。哪项红了，储能就是来补位的。</p>
+
+  <hr />
+
+  <h2>算吞</h2>
+  <p>用一个简化的例子。某园区装了光伏。日发电 8 万度，日用电 12 万度。不配储的时候，负荷直接吃掉 6 万度，上网 2 万度。</p>
+  <p>三项门槛：自发自用/发电 75%，达标。自发自用/用电 50%，达标。上网/发电 25%，超了。</p>
+  <p>你要把自发自用提到 90%。</p>
+
+  <h3>来源 A：自发自用目标</h3>
+  <p>每天还差 80,000 × 90% − 60,000 = <strong>12,000 度</strong>。这 1.2 万度得靠储能搬。</p>
+  <p>储能不是理想水缸。放电效率 95%，SOC 最多用到 90%。</p>
+  <p><strong>吞-容量</strong> = 12,000 ÷ 0.95 ÷ 0.90 ≈ <strong>14,000 kWh</strong></p>
+  <p>充电功率呢？光伏午间集中大发约 4 小时。</p>
+  <p><strong>吞-功率</strong> = 12,000 ÷ 4 = <strong>3,000 kW</strong></p>
+
+  <h3>来源 B：上网超限</h3>
+  <p>上网率 25%，超了 20% 门槛 5 个点。超限的部分同样不能直送电网——储能来吞。</p>
+  <p>日均超量 = 5% × 80,000 = <strong>4,000 度/天</strong></p>
+  <p><strong>吞-容量</strong> = 4,000 ÷ 0.95 ÷ 0.90 ≈ <strong>4,700 kWh</strong></p>
+  <p>来源 A 要 14 MWh，来源 B 要 4.7 MWh。取大。<strong>吞-合计 = 14 MWh。吞-功率 = 3 MW。</strong></p>
+
+  <hr />
+
+  <h2>算吐</h2>
+  <p>夜晚六点到十点，光伏归零，园区还在全速生产。最大负荷 8,000 kW。</p>
+  <p>这里有一个关键参数：<strong>你向电网担保缺口时段有多少电源出力。</strong></p>
+  <p>光伏晚上为零。担保填 0 = 最保守 = 储能全扛。</p>
+  <p>缺口 = 8,000 − 0 = <strong>8,000 kW</strong></p>
+  <p><strong>吐-功率 = 8,000 kW</strong></p>
+  <p>放电时长按 4 小时设计。一个参数同时管容量上限和放电时长。</p>
+  <p><strong>吐-容量</strong> = 8,000 × 4 ÷ 0.95 ÷ 0.90 ≈ <strong>37,400 kWh</strong></p>
+  <p>吞给了 14 MWh / 3 MW。吐要了 37 MWh / 8 MW。</p>
+
+  <hr />
+
+  <h2>取大</h2>
+  <p>功率 = max(吞 3, 吐 8) = <strong>8 MW</strong></p>
+  <p>容量 = max(吞 14, 吐 37) = <strong>37 MWh</strong></p>
+  <p>吐侧主导了配置。光伏晚上确实没有出力。</p>
+  <p>但如果 37 MWh 配上 8 MW，时长是 4.6 小时。超过了你设的 4 小时上限。系统不会替你选。它只是把数字摊开——让你看见这份配置里，哪部分是充电逼出来的，哪部分是放电逼出来的，哪部分超出了工程合理的边界。</p>
+  <p>你可以接受弃光，可以放宽时长，也可以把自发自用目标从 90 降到 80。三个旋钮在你手里。<strong>这就是倒算法的价值。</strong></p>
+
+  <hr />
+
+  <h2>算账</h2>
+  <p>储能投资 37,000 kWh × 650 元/kWh ≈ <strong>2,405 万</strong>。</p>
+  <p>年自发自用收益 12,000 度/天 × (0.60 − 0.36) × 300 天 ≈ <strong>86 万</strong>。</p>
+  <p>容量压降收益 3,000 kW × 51.9 元 × 12 ≈ <strong>187 万</strong>。</p>
+  <p><strong>回收期 ≈ 9.7 年。</strong></p>
+  <p>注意——容量压降的前提是<strong>按需量计费</strong>。如果你按变压器容量交费，这一项收益为零。</p>
+
+  <hr />
+
+  <h2>所以</h2>
+  <pre style="background:var(--bg-card);padding:20px 24px;border-radius:var(--radius-card);font-family:var(--font-mono);font-size:0.88rem;line-height:1.8;overflow-x:auto;box-shadow:var(--shadow-card);">
+8760 数据
+  → 三个门槛
+    → 吞（来源 A 自发自用 + 来源 B 上网超限）
+      → 吐（担保出力确定最坏场景）
+        → 吞吐取大
+          → 时长约束
+            → 算账</pre>
+  <p>每一步都看得见。</p>
+
+  <blockquote>
+    <p>以上为个人学习研究工具，不构成任何投资或工作建议。</p>
+  </blockquote>
+</ArticleLayout>

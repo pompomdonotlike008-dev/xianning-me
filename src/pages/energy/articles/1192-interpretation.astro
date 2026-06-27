@@ -1,0 +1,83 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title="1192 号文深度解读：电费怎么省？谁赚谁亏？"
+  description="绿电直连1192号文到底改了啥——从电价结构到完整的电费收益模型，用数学公式讲清楚。"
+  date="2026-06-12"
+  tag="政策"
+>
+  <p>近来关于绿电直连 1192 号文的讨论不少，但政策到底改了啥、对谁有利、怎么省钱，能找到的解释大多零散。本文尝试把这件事从头到尾讲清楚——从电价结构到完整的电费收益模型。</p>
+
+  <hr />
+
+  <h2>一、电费结构</h2>
+  <p>工商业用户的电费采用<strong>两部制电价</strong>：</p>
+  <ul>
+    <li><strong>容（需）量电费</strong>（固定）= 主变容量 × 单价 = 1000 kVA × 23 元 ≈ 23,000 元/月</li>
+    <li><strong>电度电费</strong>（浮动）= 用电量 × 电度电价</li>
+  </ul>
+  <p>电度电价又拆成五层：购网电价 · 线损电价 · <strong>输配电价 0.15 元（改革核心）</strong> · 系统运行电价 · 政府基金及附加。</p>
+  <p>绿电直连的含义：用户不通过大网购电，而是向绿电电源直接购电。输配服务仍由大网提供，单独按容量制计价。</p>
+
+  <hr />
+
+  <h2>二、核心发现：临界负载率</h2>
+  <p>设全省平均负载率 α = 60%。两种模式对比：</p>
+  <p><strong>传统大网（两部制）</strong> = 容量费 + 0.80 × S × β × H</p>
+  <p><strong>绿电直连（容量制）</strong> = 容量费 + S × α × H × 0.15 + 0.65 × S × β × H</p>
+  <p>差额公式简化为：<code>0.15 × S × H × (β − α)</code></p>
+  <p>核心结论：<strong>β > α 时绿电更省，β < α 时继续用大网。</strong> 关键就一个参数——你实际负载率能不能跑赢全省平均。</p>
+
+  <hr />
+
+  <h2>三、三种场景算总账</h2>
+  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.92rem;">
+    <tr style="border-bottom:1px solid rgba(0,0,0,0.08);">
+      <th style="text-align:left;padding:8px 0;">负载率 β</th>
+      <th style="text-align:right;padding:8px 0;">传统总费</th>
+      <th style="text-align:right;padding:8px 0;">绿电总费</th>
+      <th style="text-align:right;padding:8px 0;">差额</th>
+    </tr>
+    <tr style="border-bottom:1px solid rgba(0,0,0,0.04);">
+      <td style="padding:6px 0;">90%</td>
+      <td style="text-align:right;padding:6px 0;">541,400 元</td>
+      <td style="text-align:right;padding:6px 0;">509,000 元</td>
+      <td style="text-align:right;padding:6px 0;color:var(--accent-green);">−32,400 ✅</td>
+    </tr>
+    <tr style="border-bottom:1px solid rgba(0,0,0,0.04);">
+      <td style="padding:6px 0;">60%</td>
+      <td style="text-align:right;padding:6px 0;">368,600 元</td>
+      <td style="text-align:right;padding:6px 0;">368,600 元</td>
+      <td style="text-align:right;padding:6px 0;">0</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;">40%</td>
+      <td style="text-align:right;padding:6px 0;">253,400 元</td>
+      <td style="text-align:right;padding:6px 0;">275,000 元</td>
+      <td style="text-align:right;padding:6px 0;color:var(--accent-orange);">+21,600 ⚠️</td>
+    </tr>
+  </table>
+
+  <hr />
+
+  <h2>四、三方博弈：谁赚谁亏？</h2>
+  <h3>🏢 大网</h3>
+  <p>受损：用户改买绿电→售电量减少；高负载率用户转容量制→输配收入减少。利好：缓解新能源消纳压力，减少跨区输电投资。</p>
+  <h3>🌿 绿电电源</h3>
+  <p>定价区间：高于大网购电价（约 0.48 元）→ 保障电源利益；低于用户大网总价（0.80 元）→ 用户有省钱动力。绿电价 0.65 元处在这个区间内，三方都有利可图。</p>
+  <h3>🏭 负荷用户</h3>
+  <p>β > α → 选容量制，负荷率越高越省。β < α → 继续用大网，先优化提升负载率。省钱策略 → 提高负载率 + 合理降低主变容量报装。</p>
+
+  <hr />
+
+  <h2>五、结论</h2>
+  <p>1️⃣ 容量制电价只改了输配电费的计费方式——从用电量挂钩改为容量挂钩。</p>
+  <p>2️⃣ 临界负载率 β > α 是判断标准，各省 α 不同，决策要代入自己省份的值。</p>
+  <p>3️⃣ 高负载率用户是最大赢家，低负载率用户不但不省钱还可能多交。</p>
+
+  <blockquote>
+    <p>本文基于 1192 号文公开内容进行数学推导，不构成任何投资或工作建议。具体测算需代入实际电价参数。</p>
+  </blockquote>
+</ArticleLayout>
