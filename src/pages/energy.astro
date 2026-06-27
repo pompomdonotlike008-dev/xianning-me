@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
+
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="新能源" description="新能源 & 电力政策深度研究。绿电直连、储能配置、承载力评估、电价改革。">
@@ -21,7 +23,7 @@ import ArticleCard from '../components/ArticleCard.astro';
           </span>
           <span class="link-arrow">→</span>
         </a>
-        <a href="/tools/storage/" class="tool-link card">
+        <a href={`${base}tools/storage/`} class="tool-link card">
           <span class="link-icon">🔋</span>
           <span class="link-text">
             <strong>储能配置倒算器</strong>

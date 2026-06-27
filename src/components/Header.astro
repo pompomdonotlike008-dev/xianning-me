@@ -1,12 +1,16 @@
+---
+const base = import.meta.env.BASE_URL;
+---
+
 <header class="header">
   <div class="header-inner">
-    <a href="/" class="logo">贤宁</a>
+    <a href={base} class="logo">贤宁</a>
     <nav class="nav" aria-label="主导航">
-      <a href="/energy">新能源</a>
-      <a href="/ai">AI</a>
-      <a href="/tools">工具箱</a>
-      <a href="/me">故事</a>
-      <a href="/about">关于</a>
+      <a href={`${base}energy`}>新能源</a>
+      <a href={`${base}ai`}>AI</a>
+      <a href={`${base}tools`}>工具箱</a>
+      <a href={`${base}me`}>故事</a>
+      <a href={`${base}about`}>关于</a>
     </nav>
   </div>
 </header>
@@ -57,17 +61,13 @@
     color: var(--text-secondary);
     border-radius: 8px;
     transition: all 0.2s ease;
+    text-decoration: none;
   }
 
   .nav a:hover {
     color: var(--text-primary);
     background: rgba(0,0,0,0.04);
     opacity: 1;
-  }
-
-  .nav a.active {
-    color: var(--text-primary);
-    background: rgba(0,0,0,0.06);
   }
 
   @media (max-width: 640px) {

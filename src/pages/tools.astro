@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ToolCard from '../components/ToolCard.astro';
+
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="工具箱" description="新能源计算工具箱：绿电直连电费计算器、储能配置倒算器、光伏收益测算器、分布式承载力评估器。">
@@ -22,7 +24,7 @@ import ToolCard from '../components/ToolCard.astro';
       icon="🔋"
       title="储能配置倒算器"
       description="从自发自用比例和接网容量双目标反推储能配置（MW / MWh）。支持 8760 逐时数据导入，含双场景经济性对比。"
-      href="/tools/storage/"
+      href={`${base}tools/storage/`}
       badge="new"
     />
     <ToolCard

@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ToolCard from '../components/ToolCard.astro';
+
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="首页" description="贤宁 — 用 AI 做新能源的一个人。新能源政策解读、AI 工具开发、个人思考随笔。">
@@ -12,17 +14,17 @@ import ToolCard from '../components/ToolCard.astro';
 
   <div class="section">
     <div class="topic-grid">
-      <a href="/energy" class="topic-card card">
+      <a href={`${base}energy`} class="topic-card card">
         <span class="topic-icon">🔋</span>
         <h3>新能源</h3>
         <p>绿电直连政策解读、储能配置工程量计算、电力市场深度分析</p>
       </a>
-      <a href="/ai" class="topic-card card">
+      <a href={`${base}ai`} class="topic-card card">
         <span class="topic-icon">🤖</span>
         <h3>AI 摸鱼</h3>
         <p>Claude Code Skill 工具箱、AI 工作流搭建、Obsidian 知识管理实践</p>
       </a>
-      <a href="/me" class="topic-card card">
+      <a href={`${base}me`} class="topic-card card">
         <span class="topic-icon">📝</span>
         <h3>纸条随笔</h3>
         <p>一个注册电气工程师的成长故事、思考碎片和真诚记录</p>
@@ -45,7 +47,7 @@ import ToolCard from '../components/ToolCard.astro';
         icon="🔋"
         title="储能配置倒算器"
         description="从自发自用比例和接网容量双目标反推储能配置。支持 8760 逐时数据导入，含经济性对比。"
-        href="/tools/storage/"
+        href={`${base}tools/storage/`}
         badge="new"
       />
     </div>
