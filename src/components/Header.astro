@@ -1,0 +1,83 @@
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">贤宁</a>
+    <nav class="nav" aria-label="主导航">
+      <a href="/energy">新能源</a>
+      <a href="/ai">AI</a>
+      <a href="/tools">工具箱</a>
+      <a href="/me">故事</a>
+      <a href="/about">关于</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    background: rgba(245, 245, 247, 0.72);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .header-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--content-padding);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.04em;
+  }
+
+  .logo:hover {
+    opacity: 0.7;
+  }
+
+  .nav {
+    display: flex;
+    gap: 8px;
+  }
+
+  .nav a {
+    padding: 6px 14px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .nav a:hover {
+    color: var(--text-primary);
+    background: rgba(0,0,0,0.04);
+    opacity: 1;
+  }
+
+  .nav a.active {
+    color: var(--text-primary);
+    background: rgba(0,0,0,0.06);
+  }
+
+  @media (max-width: 640px) {
+    .nav {
+      gap: 2px;
+    }
+
+    .nav a {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+    }
+  }
+</style>

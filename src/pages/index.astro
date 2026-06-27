@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ToolCard from '../components/ToolCard.astro';
+---
+
+<BaseLayout title="首页" description="贤宁 — 用 AI 做新能源的一个人。新能源政策解读、AI 工具开发、个人思考随笔。">
+  <div class="hero">
+    <h1 class="hero-name">贤 宁</h1>
+    <p class="hero-tagline">用 AI 做新能源的一个人</p>
+    <p class="hero-motto">但行好事，莫问前程</p>
+  </div>
+
+  <div class="section">
+    <div class="topic-grid">
+      <a href="/energy" class="topic-card card">
+        <span class="topic-icon">🔋</span>
+        <h3>新能源</h3>
+        <p>绿电直连政策解读、储能配置工程量计算、电力市场深度分析</p>
+      </a>
+      <a href="/ai" class="topic-card card">
+        <span class="topic-icon">🤖</span>
+        <h3>AI 摸鱼</h3>
+        <p>Claude Code Skill 工具箱、AI 工作流搭建、Obsidian 知识管理实践</p>
+      </a>
+      <a href="/me" class="topic-card card">
+        <span class="topic-icon">📝</span>
+        <h3>纸条随笔</h3>
+        <p>一个注册电气工程师的成长故事、思考碎片和真诚记录</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">🧰 工具箱</h2>
+    <div class="tool-list">
+      <ToolCard
+        icon="🧮"
+        title="绿电直连电费计算器"
+        description="基于 1192 号文，三种购电模式一键对比。输入负荷、电价、绿电合同参数，自动算出最优方案。"
+        href="https://pompomdonotlike008-dev.github.io/green-power-calculator/"
+        badge="live"
+        external
+      />
+      <ToolCard
+        icon="🔋"
+        title="储能配置倒算器"
+        description="从自发自用比例和接网容量双目标反推储能配置。支持 8760 逐时数据导入，含经济性对比。"
+        href="/tools/storage/"
+        badge="new"
+      />
+    </div>
+  </div>
+
+  <div class="section connect">
+    <h2 class="section-title">📮 找到我</h2>
+    <div class="connect-links">
+      <span class="connect-item">📱 公众号：<strong>王炸小纸条</strong></span>
+      <a href="https://github.com/pompomdonotlike008-dev" target="_blank" rel="noopener" class="connect-item">🐙 GitHub</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: 100px 0 60px;
+  }
+
+  .hero-name {
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-tagline {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .hero-motto {
+    font-size: 1rem;
+    color: var(--text-placeholder);
+    font-style: italic;
+  }
+
+  .section {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--content-padding) 64px;
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+  }
+
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .topic-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 28px;
+    color: inherit;
+  }
+
+  .topic-card:hover {
+    opacity: 1;
+  }
+
+  .topic-card:hover h3 {
+    color: var(--accent-blue);
+  }
+
+  .topic-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+
+  .topic-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .topic-card p {
+    font-size: 0.88rem;
+  }
+
+  .tool-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .connect {
+    text-align: center;
+  }
+
+  .connect-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+
+  .connect-item {
+    color: inherit;
+  }
+
+  .connect-item strong {
+    color: var(--text-primary);
+  }
+</style>

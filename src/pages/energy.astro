@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+---
+
+<BaseLayout title="新能源" description="新能源 & 电力政策深度研究。绿电直连、储能配置、承载力评估、电价改革。">
+  <div class="page-header">
+    <h1>🔋 新能源</h1>
+    <p>绿电直连 · 储能配置 · 承载力评估 · 电价改革</p>
+  </div>
+
+  <div class="content">
+    <section class="section-block">
+      <h2>🧰 工具箱</h2>
+      <div class="tool-links">
+        <a href="https://pompomdonotlike008-dev.github.io/green-power-calculator/" target="_blank" rel="noopener" class="tool-link card">
+          <span class="link-icon">🧮</span>
+          <span class="link-text">
+            <strong>绿电直连电费计算器</strong>
+            <small>三种购电模式一键对比 · 基于 1192 号文</small>
+          </span>
+          <span class="link-arrow">→</span>
+        </a>
+        <a href="/tools/storage/" class="tool-link card">
+          <span class="link-icon">🔋</span>
+          <span class="link-text">
+            <strong>储能配置倒算器</strong>
+            <small>双目标反推储能配置 · 8760 数据导入</small>
+          </span>
+          <span class="link-arrow">→</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <h2>📄 精选文章</h2>
+      <div class="article-list">
+        <ArticleCard
+          title="绿电直连电价算完，储能到底配多少？"
+          date="2026-06-25"
+          summary="储能不是按装机比例拍出来的，是从自发自用比例和接网容量两个目标反推的。介绍两个免费联动的计算工具。"
+          href="#"
+          tag="工具"
+        />
+        <ArticleCard
+          title="1192 号文深度解读：电费怎么省？谁赚谁亏？"
+          date="2026-06-12"
+          summary="套入江西真实电价，升级为三种模式横向对比。发现两部制下绿电与传统同价——关键在临界负载率。"
+          href="#"
+          tag="政策"
+        />
+        <ArticleCard
+          title="分布式承载力新导则深度解读"
+          date="2026-06-20"
+          summary="DL/T 2041-2025 用双层动态评估替代一刀切的 80% 红线，配储换容量成为新机制。"
+          href="#"
+          tag="政策"
+        />
+        <ArticleCard
+          title="储能配置原理：吞/吐框架完整推导"
+          date="2026-06-27"
+          summary="从源荷错配出发，用吞侧（充电需求）和吐侧（放电需求）统一储能配置的计算逻辑。"
+          href="#"
+          tag="方法"
+        />
+      </div>
+    </section>
+
+    <section class="section-block follow">
+      <p>更多深度文章 → 关注公众号 <strong>「王炸小纸条」</strong></p>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    text-align: center;
+    padding: 100px 0 40px;
+  }
+
+  .page-header h1 {
+    margin-bottom: 8px;
+  }
+
+  .page-header p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+  }
+
+  .content {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--content-padding);
+  }
+
+  .section-block {
+    margin-bottom: 48px;
+  }
+
+  .section-block h2 {
+    margin-bottom: 16px;
+  }
+
+  .tool-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tool-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .tool-link:hover {
+    opacity: 1;
+  }
+
+  .tool-link:hover strong {
+    color: var(--accent-blue);
+  }
+
+  .link-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .link-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .link-text strong {
+    font-size: 1rem;
+    transition: color 0.2s ease;
+  }
+
+  .link-text small {
+    font-size: 0.82rem;
+    color: var(--text-tertiary);
+  }
+
+  .link-arrow {
+    color: var(--text-placeholder);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .follow {
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .follow p {
+    font-size: 0.95rem;
+  }
+</style>

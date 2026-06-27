@@ -1,0 +1,73 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  icon: string;
+  href?: string;
+  badge?: 'live' | 'new' | 'coming';
+  external?: boolean;
+}
+
+const { title, description, icon, href, badge, external } = Astro.props;
+---
+
+<div class="tool-card card">
+  <div class="tool-icon">{icon}</div>
+  <div class="tool-body">
+    <h3 class="tool-title">
+      {href ? (
+        <a href={href} {...(external ? { target: '_blank', rel: 'noopener' } : {})}>
+          {title}
+        </a>
+      ) : (
+        title
+      )}
+      {badge === 'live' && <span class="badge badge-live">已上线</span>}
+      {badge === 'new' && <span class="badge badge-new">新上线</span>}
+      {badge === 'coming' && <span class="badge badge-coming">开发中</span>}
+    </h3>
+    <p>{description}</p>
+  </div>
+</div>
+
+<style>
+  .tool-card {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    padding: 24px 28px;
+  }
+
+  .tool-icon {
+    font-size: 2rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .tool-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tool-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+
+  .tool-title a {
+    color: var(--text-primary);
+  }
+
+  .tool-title a:hover {
+    color: var(--accent-blue);
+    opacity: 1;
+  }
+
+  .tool-body p {
+    font-size: 0.92rem;
+  }
+</style>

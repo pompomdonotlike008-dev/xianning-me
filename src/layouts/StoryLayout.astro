@@ -1,0 +1,85 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SEO from '../components/SEO.astro';
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <title>{title} — 贤宁</title>
+    <SEO title={title} description={description} />
+    <style>
+      .story-main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 80px var(--content-padding) 0;
+      }
+
+      .story-hero {
+        text-align: center;
+        padding: 60px 0 40px;
+      }
+
+      .story-hero h1 {
+        margin-bottom: 12px;
+      }
+
+      .story-hero p {
+        font-size: 1.1rem;
+      }
+
+      .chapter-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+        margin-bottom: 48px;
+      }
+
+      .chapter-nav a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--bg-card);
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        font-family: var(--font-mono);
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow-card);
+      }
+
+      .chapter-nav a:hover {
+        color: var(--text-primary);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-card-hover);
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <Header />
+    <main class="story-main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ToolCard from '../components/ToolCard.astro';
+---
+
+<BaseLayout title="工具箱" description="新能源计算工具箱：绿电直连电费计算器、储能配置倒算器、光伏收益测算器、分布式承载力评估器。">
+  <div class="page-header">
+    <h1>🧰 工具箱</h1>
+    <p>从政策算到工程，免费、不需要注册</p>
+  </div>
+
+  <div class="tool-grid">
+    <ToolCard
+      icon="🧮"
+      title="绿电直连电费计算器"
+      description="基于 1192 号文，传统两部制 / 绿电两部制 / 绿电容量制三种模式一键对比。所有公式公开，含授权管理。"
+      href="https://pompomdonotlike008-dev.github.io/green-power-calculator/"
+      badge="live"
+      external
+    />
+    <ToolCard
+      icon="🔋"
+      title="储能配置倒算器"
+      description="从自发自用比例和接网容量双目标反推储能配置（MW / MWh）。支持 8760 逐时数据导入，含双场景经济性对比。"
+      href="/tools/storage/"
+      badge="new"
+    />
+    <ToolCard
+      icon="☀️"
+      title="光伏收益测算器"
+      description="输入光伏装机容量、所在地光照资源和电价，自动测算 25 年发电收益与回收期。"
+      badge="coming"
+    />
+    <ToolCard
+      icon="📊"
+      title="分布式承载力评估器"
+      description="基于 DL/T 2041-2025 新版导则，评估台区/线路的分布式电源接入承载力。"
+      badge="coming"
+    />
+  </div>
+
+  <div class="note">
+    <p>所有工具均为个人学习研究之用，不构成任何投资或工作建议。如果你在使用中发现 bug 或有建议，欢迎在公众号「王炸小纸条」后台留言。</p>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    text-align: center;
+    padding: 100px 0 40px;
+  }
+
+  .page-header h1 {
+    margin-bottom: 8px;
+  }
+
+  .page-header p {
+    font-size: 1.1rem;
+  }
+
+  .tool-grid {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--content-padding);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .note {
+    max-width: var(--max-width);
+    margin: 40px auto 0;
+    padding: 0 var(--content-padding);
+    text-align: center;
+  }
+
+  .note p {
+    font-size: 0.85rem;
+    color: var(--text-placeholder);
+  }
+</style>

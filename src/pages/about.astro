@@ -1,0 +1,254 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="关于" description="贤宁，注册电气工程师（发输变电），国家电网员工。公众号「王炸小纸条」主理人。用 AI 做新能源的一个人。">
+  <div class="page-header">
+    <h1>关于我</h1>
+  </div>
+
+  <div class="content">
+    <section class="section-block profile">
+      <div class="profile-card card">
+        <div class="profile-item">
+          <span class="label">称呼</span>
+          <span class="value">贤宁（王贤宁）</span>
+        </div>
+        <div class="profile-item">
+          <span class="label">来自</span>
+          <span class="value">江西赣州宁都</span>
+        </div>
+        <div class="profile-item">
+          <span class="label">职业</span>
+          <span class="value">国家电网 · 注册电气工程师（发输变电）</span>
+        </div>
+        <div class="profile-item">
+          <span class="label">公众号</span>
+          <span class="value">王炸小纸条</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <h2>📍 职业轨迹</h2>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <time>毕业后</time>
+            <p>中山某上市集团，写宣传报道被领导赏识。工资两千多，选择考研。</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <time>研究生毕业后</time>
+            <p>进入国家电网。营销班组三年，发核心论文。后转入机关。</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <time>现在</time>
+            <p>朝九晚五上班，下班研究 AI、开发工具、写公众号。马上要成为一个父亲。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <h2>🛠️ 技能与关注</h2>
+      <div class="tag-cloud">
+        <span class="tag">电气工程</span>
+        <span class="tag">注册电气工程师</span>
+        <span class="tag">绿电直连</span>
+        <span class="tag">电价改革</span>
+        <span class="tag">储能配置</span>
+        <span class="tag">Claude Code</span>
+        <span class="tag">AI Agent</span>
+        <span class="tag">Obsidian</span>
+        <span class="tag">知识管理</span>
+        <span class="tag">前端开发</span>
+        <span class="tag">GitHub Pages</span>
+        <span class="tag">Python</span>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <h2>💬 座右铭</h2>
+      <div class="motto-block">
+        <blockquote>
+          <p>但行好事，莫问前程。</p>
+        </blockquote>
+        <blockquote>
+          <p>按照自己喜欢的方式度过这一生。</p>
+        </blockquote>
+        <blockquote>
+          <p>愿你出走半生，归来仍是少年。</p>
+        </blockquote>
+      </div>
+    </section>
+
+    <section class="section-block connect-section">
+      <h2>📮 找到我</h2>
+      <div class="connect-links">
+        <a href="https://github.com/pompomdonotlike008-dev" target="_blank" rel="noopener" class="connect-card card">
+          <span class="connect-icon">🐙</span>
+          <span>GitHub</span>
+        </a>
+        <div class="connect-card card">
+          <span class="connect-icon">📱</span>
+          <span>公众号：王炸小纸条</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    text-align: center;
+    padding: 100px 0 40px;
+  }
+
+  .content {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--content-padding);
+  }
+
+  .section-block {
+    margin-bottom: 48px;
+  }
+
+  .section-block h2 {
+    margin-bottom: 16px;
+  }
+
+  .profile-card {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .profile-item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .label {
+    font-size: 0.85rem;
+    color: var(--text-placeholder);
+    flex-shrink: 0;
+    width: 60px;
+  }
+
+  .value {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 24px;
+    border-left: 2px solid rgba(0,0,0,0.08);
+  }
+
+  .tl-item {
+    position: relative;
+    padding: 16px 0 16px 20px;
+  }
+
+  .tl-dot {
+    position: absolute;
+    left: -30px;
+    top: 22px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+  }
+
+  .tl-content time {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-placeholder);
+    margin-bottom: 2px;
+  }
+
+  .tl-content p {
+    font-size: 0.93rem;
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 100px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .motto-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .motto-block blockquote {
+    background: var(--bg-card);
+    padding: 20px 24px;
+    border-radius: var(--radius-card);
+    border-left: 3px solid var(--accent-blue);
+    box-shadow: var(--shadow-card);
+  }
+
+  .motto-block blockquote p {
+    color: var(--text-primary);
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+
+  .connect-links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .connect-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 24px;
+    color: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .connect-card:hover {
+    opacity: 1;
+    color: var(--accent-blue);
+  }
+
+  .connect-icon {
+    font-size: 1.3rem;
+  }
+
+  .connect-section h2 {
+    margin-bottom: 16px;
+  }
+</style>

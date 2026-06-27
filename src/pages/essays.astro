@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="随笔" description="纸条随笔 — 贤宁的思考碎片、学习心得和日常记录。不追求完整，追求真诚。">
+  <div class="page-header">
+    <h1>📝 纸条随笔</h1>
+    <p>思考碎片、学习心得、日常记录</p>
+  </div>
+
+  <div class="content">
+    <div class="empty-state">
+      <p>即将开始记录 ✍️</p>
+      <p class="sub">这里会放一些不够长成文章、但值得被记住的思考和片段。</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    text-align: center;
+    padding: 100px 0 40px;
+  }
+
+  .page-header h1 { margin-bottom: 8px; }
+  .page-header p { font-size: 1.1rem; color: var(--text-secondary); }
+
+  .content {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--content-padding);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 0;
+  }
+
+  .empty-state p {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+
+  .sub {
+    font-size: 0.95rem !important;
+    color: var(--text-placeholder);
+  }
+</style>

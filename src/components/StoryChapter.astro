@@ -1,0 +1,51 @@
+---
+export interface Props {
+  number: number;
+  title: string;
+}
+
+const { number, title } = Astro.props;
+---
+
+<section class="chapter" id={`ch${number}`}>
+  <div class="chapter-number">{String(number).padStart(2, '0')}</div>
+  <h2 class="chapter-title">{title}</h2>
+  <div class="chapter-content">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .chapter {
+    padding: 48px 0;
+  }
+
+  .chapter + .chapter {
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .chapter-number {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--text-placeholder);
+    line-height: 1;
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+    letter-spacing: -0.04em;
+  }
+
+  .chapter-title {
+    margin-bottom: 24px;
+  }
+
+  .chapter-content :global(p) {
+    font-size: 1.05rem;
+    line-height: 2;
+    color: var(--text-primary);
+    margin-bottom: 1.2em;
+  }
+
+  .chapter-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>
