@@ -316,6 +316,27 @@ const { title, description, date, tag, backUrl, backLabel } = Astro.props;
         color: #c62828;
       }
 
+      /* ===== Download Button ===== */
+      .article-content .download-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--accent-green);
+        color: #fff;
+        padding: 14px 28px;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 12px rgba(52, 199, 89, 0.3);
+      }
+      .article-content .download-btn:hover {
+        opacity: 1;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 20px rgba(52, 199, 89, 0.4);
+      }
+
       /* ===== Mobile ===== */
       @media (max-width: 640px) {
         .article-main {

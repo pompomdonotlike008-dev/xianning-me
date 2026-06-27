@@ -77,4 +77,12 @@ import ArticleLayout from '../../../layouts/ArticleLayout.astro';
     <strong>wechat-daily + web-access</strong><br/>
     <span style="color:var(--text-secondary);">日报采集 → 公众号草稿自动化</span>
   </p>
+  <hr />
+  <h2>📥 下载安装</h2>
+  <p>把 <code>SKILL.md</code> 放到 <code>~/.claude/skills/wechat-daily/SKILL.md</code>，重启 Claude Code 即可使用。</p>
+  <p>
+    <a href={`${import.meta.env.BASE_URL}skills/wechat-daily.md`} class="download-btn" download>
+      ⬇ 下载 SKILL.md（5 KB）
+    </a>
+  </p>
 </ArticleLayout>
