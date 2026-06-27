@@ -1,0 +1,74 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title="green-power-calc：1192 号文三模式绿电电费计算器"
+  description="基于 1192 号文政策模型，传统两部制 / 绿电两部制 / 绿电容量制三种模式一键对比。含授权管理、每日限额、永久白名单。"
+  date="2026-06-27"
+  tag="Skill"
+  backUrl={`${import.meta.env.BASE_URL}ai`}
+  backLabel="AI 专题"
+>
+  <p><strong>一句话：</strong>基于 1192 号文精确公式，自动对比三种购电模式的电费。不是通用计算器，是政策模型驱动的专用工具——公式全公开，结果可验证。</p>
+
+  <hr />
+
+  <h2>核心算法</h2>
+  <p>1192 号文定义了绿电直连的两种输配电计费方式：</p>
+  <ul>
+    <li><strong>传统两部制</strong>——容量费 + 输配电价 × 用电量</li>
+    <li><strong>绿电两部制</strong>——容量费 + 输配电价 × 用电量 + 绿电协议价 × 绿电用电量</li>
+    <li><strong>绿电容量制</strong>——容量费 + S × LFm × H × p输配 + 绿电协议价 × 绿电用电量</li>
+  </ul>
+
+  <div class="skill-detail-grid">
+    <div class="skill-detail-card">
+      <h4>输入参数</h4>
+      <p>主变容量、负载率、绿电比例、省份 LFm、各省电价参数</p>
+    </div>
+    <div class="skill-detail-card green">
+      <h4>输出结果</h4>
+      <p>三种模式月电费对比 + 最优推荐 + 临界负载率判断</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <h2>功能特点</h2>
+  <ul>
+    <li>🧮 <strong>公式全公开</strong>——所有计算步骤透明，可手算验证</li>
+    <li>🔐 <strong>授权管理</strong>——管理员可生成授权码，控制使用权限</li>
+    <li>⏱️ <strong>每日限额</strong>——可配置每人每天使用次数</li>
+    <li>⭐ <strong>永久白名单</strong>——信任用户不受限额限制</li>
+    <li>📊 <strong>实时对比</strong>——三种模式结果并列展示，差额一目了然</li>
+  </ul>
+
+  <hr />
+
+  <h2>技术实现</h2>
+  <pre style="background:#1a1a1a;color:#e5e5e7;padding:24px 28px;border-radius:14px;font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;">
+技术栈：纯前端 HTML + Tailwind CSS + Vanilla JS
+部署：GitHub Pages（免费）
+授权：localStorage 存储授权码 + 使用计数
+公式：基于[[1192号文]]精确公式</pre>
+
+  <hr />
+
+  <h2>在线使用</h2>
+  <p>
+    <a href="https://pompomdonotlike008-dev.github.io/green-power-calculator/" target="_blank" rel="noopener" class="download-btn" style="background:var(--accent-blue);box-shadow:0 2px 12px rgba(0,122,255,0.3);">
+      🔗 打开计算器（在线版）
+    </a>
+  </p>
+
+  <hr />
+
+  <h2>📥 下载安装</h2>
+  <p>把 <code>SKILL.md</code> 放到 <code>~/.claude/skills/green-power-calc/SKILL.md</code>，重启 Claude Code 即可使用。</p>
+  <p>
+    <a href={`${import.meta.env.BASE_URL}skills/green-power-calc.md`} class="download-btn" download>
+      ⬇ 下载 SKILL.md（4 KB）
+    </a>
+  </p>
+</ArticleLayout>
