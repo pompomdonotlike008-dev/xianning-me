@@ -9,13 +9,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </div>
 
   <div class="story-gallery">
-    <div class="story-card empty">
+    <a href={`${import.meta.env.BASE_URL}essays/that-teacher`} class="story-card">
       <div class="story-number">01</div>
       <div class="story-preview">
-        <h3>即将开始</h3>
-        <p>这里会放第一个小故事。</p>
+        <h3>那个没拆穿我的老师</h3>
+        <p>小学班主任用了一个没拆穿我的瞬间，让我记了将近二十年。</p>
+        <time>2026-06-28</time>
       </div>
-    </div>
+    </a>
     <div class="story-card empty">
       <div class="story-number">02</div>
       <div class="story-preview">
@@ -71,6 +72,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     display: flex;
     flex-direction: column;
     gap: 14px;
+    text-decoration: none;
+    color: inherit;
   }
 
   .story-card.empty {
@@ -100,6 +103,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .story-preview p {
     font-size: 0.88rem;
     color: var(--text-tertiary);
+  }
+
+  .story-preview time {
+    font-size: 0.78rem;
+    color: var(--text-placeholder);
+    font-variant-numeric: tabular-nums;
   }
 
   .page-footer {
