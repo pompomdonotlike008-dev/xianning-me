@@ -1,0 +1,93 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title="储能配置倒算器 · 操作指南"
+  description="上传 8760 表格，出储能配置。三步操作，免费。"
+  date="2026-06-29"
+  tag="工具"
+  backUrl={`${import.meta.env.BASE_URL}energy`}
+  backLabel="新能源专题"
+>
+  <p>上一篇文章讲了储能配置的倒算逻辑——吞、吐、取大、算账。这篇文章是操作指南。那个算法，现在是一个网页。</p>
+  <p>三步。出结果。</p>
+
+  <hr />
+
+  <h2>① 选择光伏还是风电</h2>
+  <p>不同电源的典型日出力曲线不一样——光伏中午集中大发、晚上归零；风电午间出力约峰值的 35%、晚高峰约 70%。二选一，系统自动匹配对应的典型日曲线。</p>
+
+  <h2>② 上传 8760 逐时数据（可选）</h2>
+  <p>有年度逐时数据就上传 Excel，三列即可。没有表格也可以手动填参数，系统用典型日帮你估算。</p>
+
+  <h3>表格格式</h3>
+  <table>
+    <thead><tr><th>时间</th><th>工业负荷 (kW)</th><th>光伏出力 (kW)</th></tr></thead>
+    <tbody>
+      <tr><td>2025-01-01 00:00</td><td>6,113</td><td>0</td></tr>
+      <tr><td>2025-01-01 01:00</td><td>6,615</td><td>0</td></tr>
+      <tr><td>…</td><td>…</td><td>…</td></tr>
+      <tr><td>2025-12-31 23:00</td><td>6,824</td><td>0</td></tr>
+    </tbody>
+  </table>
+  <p>单位是 <strong>kW</strong>，不是 MW。出力填正数或负数都行，工具自动识别。时间列支持任何 Excel 标准格式。</p>
+  <p>上传后自动算出年发电量、年用电量、三个比例，然后跑完全套倒算流程。</p>
+
+  <h2>③ 自动计算</h2>
+  <p>推荐配置、回收期、两个场景的经济对比——全部展开。没有什么需要注册的，没有什么需要付费的。</p>
+
+  <hr />
+
+  <h2>参数说明</h2>
+  <p>五个参数，四个有默认值。</p>
+
+  <ul>
+    <li><strong>目标自发自用比例</strong>（默认 90%）：现状 75% 的话，设 80% 比设 90% 对配置的影响小得多。</li>
+    <li><strong>缺口时段电源担保出力 ★ 最重要</strong>：晚高峰你向电网担保多少 kW 的出力。填 0 = 最保守，储能全扛。填实测值 = 乐观方案。这个数同时影响储能配置和容量压降收益，调它会看到所有数字联动。</li>
+    <li><strong>储能时长上限</strong>（默认 4 小时）：一个参数同时管放电时长和容量上限。</li>
+    <li><strong>充电窗口时长</strong>（默认 4 小时）：光伏午间集中大发就是 4h，风电更分散可以改成 6h。</li>
+    <li><strong>储能单位成本</strong>（默认 650 元/kWh）：按最新市场价改。</li>
+  </ul>
+
+  <hr />
+
+  <h2>结果怎么读</h2>
+
+  <div class="skill-detail-grid">
+    <div class="skill-detail-card">
+      <h4>前置判断</h4>
+      <p>三个门槛，红绿灯。全绿就结束——储能不需要。</p>
+    </div>
+    <div class="skill-detail-card">
+      <h4>推荐配置</h4>
+      <p>如 4.3 MW / 30 MWh（4.0 h）。标注配置是被哪个需求主导的。</p>
+    </div>
+    <div class="skill-detail-card green">
+      <h4>经济性对比</h4>
+      <p>两张卡——含容量压降（需量制）vs 不含容量压降。看清楚你适用哪张。</p>
+    </div>
+    <div class="skill-detail-card orange">
+      <h4>完整推导</h4>
+      <p>每一步公式和数值展开。直接截图放到方案报告里。</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <h2>免费</h2>
+
+  <table>
+    <thead><tr><th>工具</th><th>费用</th></tr></thead>
+    <tbody>
+      <tr><td>🔋 储能配置倒算器</td><td><strong>永久免费</strong>。不需要注册，不需要赞赏，不需要任何授权。</td></tr>
+      <tr><td>🧮 绿电直连电费计算器</td><td>首次免费。之后可通过关注公众号或赞赏继续使用。</td></tr>
+    </tbody>
+  </table>
+
+  <p>两个工具在同一个首页：<a href="https://pompomdonotlike008-dev.github.io/energy-toolbox/" target="_blank" rel="noopener">energy-toolbox</a></p>
+
+  <blockquote>
+    <p>以上为个人学习研究工具，不构成任何投资或工作建议。</p>
+  </blockquote>
+</ArticleLayout>
