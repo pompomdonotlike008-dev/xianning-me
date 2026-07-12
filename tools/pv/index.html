@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光伏收益测算器</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{font-family:'Inter','PingFang SC','Helvetica Neue',sans-serif;box-sizing:border-box}
+body{background:#f5f5f7;color:#1a1a1a;margin:0;padding:0}
+.card{background:#fff;border-radius:20px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.card-sm{background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.input-field{width:100%;padding:10px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;outline:none;transition:border-color 0.2s;background:#fff;color:#1a1a1a}
+.input-field:focus{border-color:#007AFF}
+.input-field-sm{padding:8px 12px;font-size:14px}
+.input-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.input-group .input-field{flex:1;min-width:80px}
+.input-unit{font-size:13px;color:#86868b;white-space:nowrap;font-weight:500}
+label{display:block;font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.param-card{padding:16px 0;border-bottom:1px solid #f0f0f2}
+.param-card:last-child{border-bottom:none}
+.radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-option{padding:8px 18px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:14px;cursor:pointer;transition:all 0.2s;background:#fff;color:#555;user-select:none;font-weight:500}
+.radio-option:hover{border-color:#007AFF;color:#007AFF}
+.radio-option.active{border-color:#007AFF;background:#007AFF;color:#fff}
+.radio-option.active{box-shadow:0 2px 8px rgba(0,122,255,0.3)}
+.mode-tab{padding:10px 28px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:#86868b;border:none}
+.mode-tab.active{background:#fff;color:#1a1a1a;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.result-card{background:linear-gradient(135deg,#f8f9ff,#fff);border:1px solid #e8ecf4;border-radius:16px;padding:20px;text-align:center}
+.result-value{font-size:32px;font-weight:800;color:#1a1a1a;line-height:1.2}
+.result-label{font-size:13px;color:#86868b;margin-top:4px}
+.result-unit{font-size:14px;color:#86868b;font-weight:500}
+.badge-live{display:inline-block;background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px}
+.badge-soon{display:inline-block;background:#fff3e0;color:#e65100;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px}
+.slider-group{display:flex;align-items:center;gap:12px}
+.slider-group input[type="range"]{flex:1;accent-color:#007AFF;height:4px;cursor:pointer}
+.slider-value{font-size:15px;font-weight:600;color:#1a1a1a;min-width:50px;text-align:right}
+.tooltip-info{display:inline-block;width:16px;height:16px;border-radius:50%;background:#e5e5ea;color:#86868b;font-size:11px;text-align:center;line-height:16px;cursor:help;font-weight:700}
+.tooltip-info:hover{background:#007AFF;color:#fff}
+.import-zone{border:2px dashed #e5e5ea;border-radius:16px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fafafa}
+.import-zone:hover{border-color:#007AFF;background:#f0f7ff}
+.import-zone.dragover{border-color:#007AFF;background:#e8f0fe}
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid #e5e5ea}
+.table-wrap table{width:100%;border-collapse:collapse;font-size:14px}
+.table-wrap th{background:#f5f5f7;padding:10px 14px;text-align:right;font-weight:600;color:#555;border-bottom:1px solid #e5e5ea;white-space:nowrap}
+.table-wrap td{padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f2;font-variant-numeric:tabular-nums}
+.table-wrap tr:last-child td{border-bottom:none}
+.table-wrap td:first-child,.table-wrap th:first-child{text-align:left}
+.btn-primary{background:#007AFF;color:#fff;border:none;padding:14px 40px;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,122,255,0.3)}
+.btn-primary:hover{background:#0056cc;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,122,255,0.4)}
+.btn-primary:disabled{background:#ccc;cursor:not-allowed;box-shadow:none;transform:none}
+.btn-secondary{background:#f0f0f2;color:#1a1a1a;border:none;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s}
+.btn-secondary:hover{background:#e5e5ea}
+.section-title{font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.chart-container{position:relative;height:280px;width:100%}
+.scroll-hint{font-size:12px;color:#c7c7cc;text-align:right;margin-top:4px}
+@media(max-width:640px){.card{padding:16px;border-radius:16px}.result-value{font-size:24px}.mode-tab{padding:8px 16px;font-size:13px}.btn-primary{width:100%}}
+</style>
+</head>
+<body>
+
+<div class="max-w-5xl mx-auto px-4 py-6 md:py-10">
+
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <div class="text-5xl mb-3">☀️</div>
+    <h1 class="text-3xl md:text-4xl font-extrabold text-[#1a1a1a] tracking-tight">光伏收益测算器</h1>
+    <p class="text-base text-[#86868b] mt-2 font-medium">全生命周期财务分析 · IRR / NPV / 回本周期 / LCOE</p>
+    <div class="flex items-center justify-center gap-3 mt-2">
+      <span class="badge-live">已上线</span>
+      <span class="text-xs text-[#a1a1a6]">v1.0 · 支持8760逐时导入</span>
+    </div>
+  </div>
+
+  <!-- Mode Toggle -->
+  <div class="flex justify-center mb-8">
+    <div class="inline-flex bg-[#e5e5ea] bg-opacity-40 rounded-xl p-1">
+      <button class="mode-tab active" data-mode="quick" onclick="switchMode('quick')">⚡ 快速模式</button>
+      <button class="mode-tab" data-mode="detail" onclick="switchMode('detail')">📊 详细模式</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- ===== INPUT PANEL ===== -->
+    <div class="lg:col-span-2">
+      <div class="card">
+
+        <!-- === SECTION: 装机参数 === -->
+        <div class="section-title"><span>📐</span> 装机参数</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+
+          <div class="param-card">
+            <div class="input-group">
+              <label>☀️ 装机容量 <span class="tooltip-info" title="光伏组件的总装机规模，单位 kWp（峰瓦）">?</span></label>
+              <input type="number" id="capacity" class="input-field" value="500" step="1" min="1">
+              <span class="input-unit">kWp</span>
+            </div>
+          </div>
+
+          <div class="param-card">
+            <div class="input-group">
+              <label>🌍 项目省份 <span class="tooltip-info" title="选择项目所在省份，自动填充日照资源和燃煤基准价">?</span></label>
+              <select id="province" class="input-field" onchange="onProvinceChange()">
+                <option value="北京">北京</option><option value="天津">天津</option><option value="河北">河北</option><option value="山西">山西</option><option value="内蒙古">内蒙古</option>
+                <option value="辽宁">辽宁</option><option value="吉林">吉林</option><option value="黑龙江">黑龙江</option><option value="上海">上海</option><option value="江苏">江苏</option>
+                <option value="浙江">浙江</option><option value="安徽">安徽</option><option value="福建">福建</option><option value="江西" selected>江西</option><option value="山东">山东</option>
+                <option value="河南">河南</option><option value="湖北">湖北</option><option value="湖南">湖南</option><option value="广东">广东</option><option value="广西">广西</option>
+                <option value="海南">海南</option><option value="重庆">重庆</option><option value="四川">四川</option><option value="贵州">贵州</option><option value="云南">云南</option>
+                <option value="西藏">西藏</option><option value="陕西">陕西</option><option value="甘肃">甘肃</option><option value="青海">青海</option><option value="宁夏">宁夏</option>
+                <option value="新疆">新疆</option><option value="蒙西">蒙西</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- === SECTION: 日照资源 === -->
+        <div class="section-title mt-4"><span>☀️</span> 日照资源</div>
+
+        <!-- Quick mode: simple -->
+        <div id="solarQuick">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+            <div class="param-card">
+              <div class="input-group">
+                <label>📅 年等效利用小时数 <span class="tooltip-info" title="根据省份自动填充，也可手动修改。等于年发电量÷装机容量">?</span></label>
+                <input type="number" id="sunHours" class="input-field" step="10" min="0">
+                <span class="input-unit">h/年</span>
+              </div>
+              <div class="text-xs text-[#86868b] mt-1" id="sunHint"></div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>⚡ 系统效率 (PR) <span class="tooltip-info" title="Performance Ratio，综合效率：组件匹配、线路损耗、灰尘、温度等综合影响">?</span></label>
+                <input type="number" id="pr" class="input-field" value="80" step="0.5" min="50" max="95">
+                <span class="input-unit">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail mode: 8760 import + extra -->
+        <div id="solarDetail" style="display:none">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+            <div class="param-card">
+              <div class="input-group">
+                <label>📅 年等效利用小时数</label>
+                <input type="number" id="sunHoursD" class="input-field" step="10" min="0">
+                <span class="input-unit">h/年</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>⚡ 系统效率 (PR)</label>
+                <input type="number" id="prD" class="input-field" value="80" step="0.5" min="50" max="95">
+                <span class="input-unit">%</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>📉 首年衰减率</label>
+                <input type="number" id="degY1" class="input-field" value="2" step="0.1" min="0" max="5">
+                <span class="input-unit">%</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>📉 此后每年衰减率</label>
+                <input type="number" id="degYn" class="input-field" value="0.55" step="0.05" min="0" max="2">
+                <span class="input-unit">%/年</span>
+              </div>
+            </div>
+          </div>
+          <!-- 8760 Import -->
+          <div class="param-card">
+            <label style="font-size:14px">📂 上传 8760 逐时数据（可选）<span class="tooltip-info" title="上传格式参考储能倒算器：Excel 文件，包含时序负荷/发电数据。上传后自动计算年发电量">?</span></label>
+            <div class="mt-2">
+              <div class="import-zone" id="importZone" onclick="document.getElementById('fileInput').click()">
+                <div class="text-3xl mb-2">📄</div>
+                <div class="text-sm font-medium text-[#555]">点击上传 Excel 文件</div>
+                <div class="text-xs text-[#86868b] mt-1" id="importStatus">支持 .xlsx / .xls 格式</div>
+              </div>
+              <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleFile(event)">
+            </div>
+          </div>
+        </div>
+
+        <!-- === SECTION: 电价参数 === -->
+        <div class="section-title mt-4"><span>💰</span> 电价参数</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+
+          <div class="param-card">
+            <div class="input-group">
+              <label>🏢 用户目录电价 <span class="tooltip-info" title="光伏自发自用节省的电费单价。工商业用户通常 0.6-0.9 元/kWh">?</span></label>
+              <input type="number" id="retailPrice" class="input-field" value="0.75" step="0.01" min="0">
+              <span class="input-unit">元/kWh</span>
+            </div>
+            <div class="text-xs text-[#86868b] mt-1" id="priceHint"></div>
+          </div>
+
+          <div class="param-card">
+            <div class="input-group">
+              <label>🔀 自发自用比例</label>
+              <div class="slider-group w-full">
+                <input type="range" id="selfUseRatio" min="0" max="100" value="70" oninput="document.getElementById('selfUseRatioVal').textContent=this.value+'%'">
+                <span class="slider-value" id="selfUseRatioVal">70%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="param-card" style="border-bottom:none">
+            <label>🔌 余电上网电价方式</label>
+            <div class="radio-group mt-2">
+              <div class="radio-option active" data-tariff="coal" onclick="selectTariff('coal')">🔥 燃煤基准价</div>
+              <div class="radio-option" data-tariff="market" onclick="selectTariff('market')">📊 市场交易价</div>
+              <div class="radio-option" data-tariff="custom" onclick="selectTariff('custom')">✏️ 自定义</div>
+            </div>
+            <div class="mt-3">
+              <div class="input-group">
+                <label style="font-size:13px;font-weight:500" id="tariffLabel">余电上网电价</label>
+                <input type="number" id="feedInPrice" class="input-field" step="0.001" min="0">
+                <span class="input-unit">元/kWh</span>
+              </div>
+              <div class="text-xs text-[#007AFF] mt-1" id="tariffNote">
+                💡 以当地燃煤基准价为参考。136号文实施后，大型工商业分布式光伏余电可能需进入市场交易，价格由竞价形成。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- === SECTION: 成本参数（详细模式展开） === -->
+        <div id="costSection" style="display:none">
+          <div class="section-title mt-4"><span>🏗️</span> 成本参数</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6">
+            <div class="param-card">
+              <div class="input-group">
+                <label>💵 系统单价</label>
+                <input type="number" id="unitCost" class="input-field" value="3.0" step="0.1" min="0">
+                <span class="input-unit">元/Wp</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>🔧 运维费率</label>
+                <input type="number" id="omRate" class="input-field" value="1.0" step="0.1" min="0">
+                <span class="input-unit">%/年</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>🛡️ 保险费率</label>
+                <input type="number" id="insRate" class="input-field" value="0.3" step="0.05" min="0">
+                <span class="input-unit">%/年</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>🔄 逆变器更换成本</label>
+                <input type="number" id="invCost" class="input-field" value="0.25" step="0.05" min="0">
+                <span class="input-unit">元/Wp</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>🔄 逆变器更换年份</label>
+                <input type="text" id="invYears" class="input-field" value="10,20" placeholder="10,20">
+                <span class="input-unit">第N年</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- === SECTION: 融资参数（详细模式展开） === -->
+        <div id="financeSection" style="display:none">
+          <div class="section-title mt-4"><span>🏦</span> 融资参数</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6">
+            <div class="param-card">
+              <div class="input-group">
+                <label>🏦 贷款比例</label>
+                <input type="number" id="loanRatio" class="input-field" value="70" step="5" min="0" max="100">
+                <span class="input-unit">%</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>📈 贷款利率</label>
+                <input type="number" id="loanRate" class="input-field" value="4.0" step="0.1" min="0">
+                <span class="input-unit">%/年</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>📅 还款年限</label>
+                <input type="number" id="loanTerm" class="input-field" value="15" step="1" min="1" max="30">
+                <span class="input-unit">年</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>📊 折现率</label>
+                <input type="number" id="discountRate" class="input-field" value="6.0" step="0.1" min="0">
+                <span class="input-unit">%</span>
+              </div>
+            </div>
+            <div class="param-card">
+              <div class="input-group">
+                <label>📋 折旧年限</label>
+                <input type="number" id="depYears" class="input-field" value="20" step="1" min="1" max="30">
+                <span class="input-unit">年</span>
+              </div>
+            </div>
+            <div class="param-card" style="border-bottom:none">
+              <div class="input-group">
+                <label>🧾 所得税率</label>
+                <input type="number" id="taxRate" class="input-field" value="25" step="1" min="0" max="50">
+                <span class="input-unit">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- === SECTION: 计算期 === -->
+        <div class="section-title mt-4"><span>⏱️</span> 计算期</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+          <div class="param-card" style="border-bottom:none">
+            <div class="input-group">
+              <label>📅 运营期</label>
+              <input type="number" id="calcYears" class="input-field" value="25" step="1" min="1" max="40">
+              <span class="input-unit">年</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <div class="mt-6 text-center">
+          <button class="btn-primary" onclick="calculate()">☀️ 开始测算</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT PANEL: Convenience Shortcuts ===== -->
+    <div class="lg:col-span-1">
+      <div class="card">
+        <div class="section-title"><span>⚡</span> 快速预设</div>
+        <div class="space-y-3">
+          <div class="card-sm cursor-pointer hover:shadow-md transition" onclick="loadPreset('rooftop')">
+            <div class="font-bold text-sm">🏢 工商业屋顶</div>
+            <div class="text-xs text-[#86868b] mt-1">500kWp · 自发自用70% · 单价3.0元/Wp</div>
+          </div>
+          <div class="card-sm cursor-pointer hover:shadow-md transition" onclick="loadPreset('ground')">
+            <div class="font-bold text-sm">🌄 地面集中式</div>
+            <div class="text-xs text-[#86868b] mt-1">50MWp · 全额上网 · 单价2.8元/Wp</div>
+          </div>
+          <div class="card-sm cursor-pointer hover:shadow-md transition" onclick="loadPreset('factory')">
+            <div class="font-bold text-sm">🏭 工厂自用</div>
+            <div class="text-xs text-[#86868b] mt-1">2MWp · 自发自用90% · 单价3.2元/Wp</div>
+          </div>
+        </div>
+
+        <div class="section-title mt-6"><span>💡</span> 提示</div>
+        <div class="text-xs text-[#86868b] leading-relaxed space-y-2">
+          <p>🔹 <b>快速模式</b>：填核心参数，默认使用典型财务设置</p>
+          <p>🔹 <b>详细模式</b>：展开全部参数，支持8760上传</p>
+          <p>🔹 本工具为学习研究用途，不构成投资建议</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RESULTS ===== -->
+  <div id="results" class="mt-6" style="display:none">
+    <div class="card">
+      <div class="section-title"><span>📊</span> 测算结果</div>
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="result-card"><div class="result-value" id="rPayback">-</div><div class="result-label">回本周期</div></div>
+        <div class="result-card"><div class="result-value" id="rIRR">-</div><div class="result-label">IRR（全投资）</div></div>
+        <div class="result-card"><div class="result-value" id="rNPV">-</div><div class="result-label">NPV（净现值）</div></div>
+        <div class="result-card"><div class="result-value" id="rLCOE">-</div><div class="result-label">LCOE（度电成本）</div></div>
+      </div>
+
+      <!-- Secondary KPIs -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="card-sm text-center"><div class="text-lg font-bold text-[#1a1a1a]" id="rAnnualGen">-</div><div class="text-xs text-[#86868b]">首年发电量</div></div>
+        <div class="card-sm text-center"><div class="text-lg font-bold text-[#1a1a1a]" id="rAnnualRev">-</div><div class="text-xs text-[#86868b]">首年收益</div></div>
+        <div class="card-sm text-center"><div class="text-lg font-bold text-[#1a1a1a]" id="rTotalRev">-</div><div class="text-xs text-[#86868b]">25年总收入</div></div>
+        <div class="card-sm text-center"><div class="text-lg font-bold text-[#1a1a1a]" id="rTotalCost">-</div><div class="text-xs text-[#86868b]">全生命周期成本</div></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="card-sm"><div class="font-bold text-sm mb-3">📈 累计现金流曲线</div><div class="chart-container"><canvas id="cashFlowChart"></canvas></div></div>
+        <div class="card-sm"><div class="font-bold text-sm mb-3">🥧 收益构成</div><div class="chart-container"><canvas id="revenueChart"></canvas></div></div>
+      </div>
+
+      <!-- Cash Flow Table -->
+      <div class="mt-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="font-bold text-sm">📋 逐年现金流明细</div>
+          <button class="btn-secondary text-xs" onclick="exportCSV()">📥 导出CSV</button>
+        </div>
+        <div class="table-wrap">
+          <div style="max-height:400px;overflow-y:auto">
+            <table>
+              <thead><tr>
+                <th>年份</th><th>发电量(kWh)</th><th>自发自用收益(元)</th><th>余电收益(元)</th>
+                <th>运维成本(元)</th><th>净现金流(元)</th><th>累计现金流(元)</th>
+              </tr></thead>
+              <tbody id="cashFlowBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="text-center mt-8 mb-6">
+    <div class="text-xs text-[#c7c7cc] space-y-1">
+      <p>⚡ 王炸小纸条 · 光伏收益测算器 v1.0</p>
+      <p>基于政策文件与实际工程数据构建 · 不构成投资建议</p>
+      <p><a href="https://pompomdonotlike008-dev.github.io/energy-toolbox" class="hover:text-[#007AFF]" target="_blank">← 返回工具箱</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 1. PROVINCE DATABASE
+// ============================================================
+const PROVINCE_DATA = {
+  '北京': {sunHours:1300,coalPrice:0.3598,peakSun:3.6,note:'华北地区·日照中等'},
+  '天津': {sunHours:1350,coalPrice:0.3655,peakSun:3.7,note:'华北地区'},
+  '河北': {sunHours:1400,coalPrice:0.3644,peakSun:3.8,note:'华北地区·北部日照较好'},
+  '山西': {sunHours:1450,coalPrice:0.3320,peakSun:4.0,note:'黄土高原·日照充足'},
+  '内蒙古': {sunHours:1600,coalPrice:0.2829,peakSun:4.4,note:'高原·日照资源丰富'},
+  '蒙西': {sunHours:1650,coalPrice:0.2829,peakSun:4.5,note:'蒙西·日照资源极丰富'},
+  '辽宁': {sunHours:1400,coalPrice:0.3749,peakSun:3.8,note:'东北·日照中等'},
+  '吉林': {sunHours:1450,coalPrice:0.3718,peakSun:4.0,note:'东北·日照中等偏上'},
+  '黑龙江': {sunHours:1500,coalPrice:0.3740,peakSun:4.1,note:'东北·日照较好'},
+  '上海': {sunHours:1100,coalPrice:0.4155,peakSun:3.0,note:'华东·日照偏低'},
+  '江苏': {sunHours:1200,coalPrice:0.3910,peakSun:3.3,note:'华东·日照中等'},
+  '浙江': {sunHours:1100,coalPrice:0.4153,peakSun:3.0,note:'华东·日照偏低'},
+  '安徽': {sunHours:1200,coalPrice:0.3844,peakSun:3.3,note:'华东·日照中等'},
+  '福建': {sunHours:1150,coalPrice:0.3932,peakSun:3.2,note:'东南沿海·日照中等偏低'},
+  '江西': {sunHours:1050,coalPrice:0.4143,peakSun:2.9,note:'华东·日照偏低'},
+  '山东': {sunHours:1300,coalPrice:0.3949,peakSun:3.6,note:'华北·日照中等'},
+  '河南': {sunHours:1250,coalPrice:0.3779,peakSun:3.4,note:'华中·日照中等'},
+  '湖北': {sunHours:1050,coalPrice:0.4161,peakSun:2.9,note:'华中·日照偏低'},
+  '湖南': {sunHours:1000,coalPrice:0.4500,peakSun:2.7,note:'华中·日照偏低'},
+  '广东': {sunHours:1100,coalPrice:0.4530,peakSun:3.0,note:'南方·日照中等偏低'},
+  '广西': {sunHours:1150,coalPrice:0.4207,peakSun:3.2,note:'南方·日照中等'},
+  '海南': {sunHours:1300,coalPrice:0.4298,peakSun:3.6,note:'热带·日照充足'},
+  '重庆': {sunHours:900,coalPrice:0.3964,peakSun:2.5,note:'四川盆地·日照少'},
+  '四川': {sunHours:1000,coalPrice:0.4012,peakSun:2.7,note:'四川盆地·日照偏少'},
+  '贵州': {sunHours:1050,coalPrice:0.3515,peakSun:2.9,note:'云贵高原·日照中等'},
+  '云南': {sunHours:1500,coalPrice:0.3358,peakSun:4.1,note:'云贵高原·日照充足'},
+  '西藏': {sunHours:1800,coalPrice:0.2500,peakSun:5.0,note:'高原·日照极丰富'},
+  '陕西': {sunHours:1300,coalPrice:0.3545,peakSun:3.6,note:'西北·日照中等'},
+  '甘肃': {sunHours:1600,coalPrice:0.2978,peakSun:4.4,note:'西北·日照充足'},
+  '青海': {sunHours:1700,coalPrice:0.3247,peakSun:4.7,note:'高原·日照极丰富'},
+  '宁夏': {sunHours:1550,coalPrice:0.2595,peakSun:4.2,note:'西北·日照充足'},
+  '新疆': {sunHours:1600,coalPrice:0.2500,peakSun:4.4,note:'西北·日照极丰富'}
+};
+
+// ============================================================
+// 2. STATE
+// ============================================================
+var currentMode = 'quick';
+var currentTariff = 'coal';
+var imported8760 = null; // {yearlyGen, years: [{gen, selfUse, feedIn}]}
+
+// ============================================================
+// 3. UI FUNCTIONS
+// ============================================================
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(function(t){
+    t.classList.toggle('active', t.dataset.mode === mode);
+  });
+  document.getElementById('solarQuick').style.display = mode === 'quick' ? '' : 'none';
+  document.getElementById('solarDetail').style.display = mode === 'detail' ? '' : 'none';
+  document.getElementById('costSection').style.display = mode === 'detail' ? '' : 'none';
+  document.getElementById('financeSection').style.display = mode === 'detail' ? '' : 'none';
+  syncSolarFields();
+}
+
+function syncSolarFields() {
+  var p = PROVINCE_DATA[document.getElementById('province').value];
+  if (!p) return;
+  document.getElementById('sunHours').value = p.sunHours;
+  document.getElementById('sunHoursD').value = p.sunHours;
+  document.getElementById('sunHint').textContent = '💡 ' + p.note + ' · 燃煤基准价 ' + p.coalPrice + ' 元/kWh';
+  document.getElementById('priceHint').textContent = '💡 ' + document.getElementById('province').value + ' 燃煤基准价 ' + p.coalPrice + ' 元/kWh';
+  if (currentTariff === 'coal') {
+    document.getElementById('feedInPrice').value = p.coalPrice;
+  }
+}
+
+function onProvinceChange() {
+  syncSolarFields();
+}
+
+function selectTariff(type) {
+  currentTariff = type;
+  document.querySelectorAll('[data-tariff]').forEach(function(r){
+    r.classList.toggle('active', r.dataset.tariff === type);
+  });
+  var p = PROVINCE_DATA[document.getElementById('province').value];
+  if (type === 'coal') {
+    document.getElementById('feedInPrice').value = p ? p.coalPrice : 0.4;
+    document.getElementById('tariffLabel').textContent = '🔥 燃煤基准价';
+    document.getElementById('tariffNote').style.display = '';
+    document.getElementById('feedInPrice').readOnly = true;
+  } else if (type === 'market') {
+    var marketPrice = p ? (p.coalPrice * 0.85) : 0.35;
+    document.getElementById('feedInPrice').value = marketPrice.toFixed(4);
+    document.getElementById('tariffLabel').textContent = '📊 市场交易价';
+    document.getElementById('tariffNote').textContent = '💡 按燃煤基准价约85%估算，实际价格由市场竞价形成。136号文后大型项目须入市。';
+    document.getElementById('tariffNote').style.display = '';
+    document.getElementById('feedInPrice').readOnly = false;
+  } else {
+    document.getElementById('feedInPrice').value = '';
+    document.getElementById('tariffLabel').textContent = '✏️ 自定义电价';
+    document.getElementById('tariffNote').textContent = '💡 输入你认为合理的余电上网价格，适用于特殊协议电价或绿电溢价场景。';
+    document.getElementById('tariffNote').style.display = '';
+    document.getElementById('feedInPrice').readOnly = false;
+  }
+}
+
+function loadPreset(type) {
+  if (type === 'rooftop') {
+    document.getElementById('capacity').value = 500;
+    document.getElementById('selfUseRatio').value = 70;
+    document.getElementById('selfUseRatioVal').textContent = '70%';
+    document.getElementById('unitCost').value = 3.0;
+    document.getElementById('retailPrice').value = 0.75;
+    document.getElementById('omRate').value = 1.0;
+  } else if (type === 'ground') {
+    document.getElementById('capacity').value = 50000;
+    document.getElementById('selfUseRatio').value = 0;
+    document.getElementById('selfUseRatioVal').textContent = '0%';
+    document.getElementById('unitCost').value = 2.8;
+    document.getElementById('retailPrice').value = 0.75;
+    document.getElementById('omRate').value = 1.0;
+    selectTariff('coal');
+  } else if (type === 'factory') {
+    document.getElementById('capacity').value = 2000;
+    document.getElementById('selfUseRatio').value = 90;
+    document.getElementById('selfUseRatioVal').textContent = '90%';
+    document.getElementById('unitCost').value = 3.2;
+    document.getElementById('retailPrice').value = 0.80;
+    document.getElementById('omRate').value = 1.2;
+  }
+  onProvinceChange();
+  // smooth scroll to top of form
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ============================================================
+// 4. 8760 FILE HANDLER
+// ============================================================
+function handleFile(e) {
+  var f = e.target.files[0];
+  if (!f) return;
+  imported8760 = null;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      var wb = XLSX.read(ev.target.result, {type:'array'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
+      if (rows.length < 3) throw new Error('表格行数过少');
+      parse8760(rows);
+    } catch(err) {
+      document.getElementById('importStatus').textContent = '❌ 解析失败：' + err.message;
+      document.getElementById('importStatus').style.color = '#c62828';
+    }
+  };
+  reader.readAsArrayBuffer(f);
+}
+
+function parse8760(rows) {
+  // Scan for numeric columns with PV generation pattern
+  var sampleN = Math.min(200, rows.length);
+  var colCandidates = [];
+  for (var j = 0; j < (rows[0]||[]).length; j++) {
+    var sum = 0, cnt = 0, maxVal = 0;
+    for (var i = 0; i < sampleN; i++) {
+      var v = rows[i] ? parseFloat(rows[i][j]) : NaN;
+      if (!isNaN(v) && v > 0) { sum += v; cnt++; if (v > maxVal) maxVal = v; }
+    }
+    if (cnt > sampleN * 0.3) colCandidates.push({col:j, avg:sum/cnt, max:maxVal, cnt:cnt});
+  }
+  if (colCandidates.length < 2) {
+    document.getElementById('importStatus').textContent = '⚠️ 未找到足够的发电或负荷数据列';
+    document.getElementById('importStatus').style.color = '#e65100';
+    return;
+  }
+  // Sort by average value descending - the one with highest average is likely generation/load
+  colCandidates.sort(function(a,b){return b.avg - a.avg});
+  var genCol = colCandidates[0].col;
+  // Check if this looks like PV generation (peak during day)
+  var dayVals = [], nightVals = [];
+  for (var i = 0; i < Math.min(rows.length, 8760); i++) {
+    var v = rows[i] ? parseFloat(rows[i][genCol]) : 0;
+    if (isNaN(v)) v = 0;
+    var h = i % 24;
+    if (h >= 6 && h <= 18) dayVals.push(v); else nightVals.push(v);
+  }
+  var dayAvg = dayVals.length ? dayVals.reduce(function(a,b){return a+b},0)/dayVals.length : 0;
+  var nightAvg = nightVals.length ? nightVals.reduce(function(a,b){return a+b},0)/nightVals.length : 0;
+  var genTotal = 0;
+  for (var i = 0; i < Math.min(rows.length, 8760); i++) {
+    var v = rows[i] ? parseFloat(rows[i][genCol]) : 0;
+    if (isNaN(v)) v = 0;
+    genTotal += v;
+  }
+  // If day/night ratio > 2, likely PV
+  var isPV = (dayAvg > nightAvg * 2);
+  if (!isPV && dayAvg > 0) {
+    // Wind or other — still usable, but note
+    document.getElementById('importStatus').textContent = '⚠️ 检测到非典型光伏出力曲线，数据已导入';
+    document.getElementById('importStatus').style.color = '#e65100';
+  } else {
+    document.getElementById('importStatus').textContent = '✅ 8760 数据导入成功！年发电量 ' + fmt(genTotal) + ' kWh';
+    document.getElementById('importStatus').style.color = '#2e7d32';
+  }
+  // Update the sun hours from 8760 data
+  var cap = parseFloat(document.getElementById('capacity').value) || 500;
+  var impliedHours = cap > 0 ? genTotal / cap : 0;
+  if (currentMode === 'detail') {
+    document.getElementById('sunHoursD').value = Math.round(impliedHours);
+  } else {
+    document.getElementById('sunHours').value = Math.round(impliedHours);
+  }
+  imported8760 = {yearlyGen: genTotal};
+  // Mark import zone
+  document.getElementById('importZone').style.borderColor = '#2e7d32';
+  document.getElementById('importZone').style.background = '#f0faf0';
+}
+
+// ============================================================
+// 5. CORE CALCULATION
+// ============================================================
+function fmt(n) { return Number(n).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0}) }
+function fmt1(n) { return Number(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) }
+function fmt2(n) { return Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) }
+function fmtMoney(n) { return '¥' + Number(n).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0}) }
+
+function calculate() {
+  // --- Gather inputs ---
+  var capacity = parseFloat(document.getElementById('capacity').value) || 500; // kWp
+  var province = document.getElementById('province').value;
+  var pData = PROVINCE_DATA[province] || {sunHours:1200, coalPrice:0.4};
+  var pr = currentMode === 'quick'
+    ? (parseFloat(document.getElementById('pr').value) || 80) / 100
+    : (parseFloat(document.getElementById('prD').value) || 80) / 100;
+  var sunHours = currentMode === 'quick'
+    ? (parseFloat(document.getElementById('sunHours').value) || pData.sunHours)
+    : (parseFloat(document.getElementById('sunHoursD').value) || pData.sunHours);
+  var degY1 = currentMode === 'quick' ? 2.0 : (parseFloat(document.getElementById('degY1').value) || 2.0);
+  var degYn = currentMode === 'quick' ? 0.55 : (parseFloat(document.getElementById('degYn').value) || 0.55);
+  var retailPrice = parseFloat(document.getElementById('retailPrice').value) || 0.75;
+  var selfUseRatio = (parseFloat(document.getElementById('selfUseRatio').value) || 70) / 100;
+  var feedInPrice = parseFloat(document.getElementById('feedInPrice').value) || 0.4;
+  var calcYears = parseInt(document.getElementById('calcYears').value) || 25;
+
+  // Cost (Quick: use defaults for detail params)
+  var unitCost = parseFloat(document.getElementById('unitCost').value) || 3.0;
+  var omRate = parseFloat(document.getElementById('omRate').value) || 1.0;
+  var insRate = parseFloat(document.getElementById('insRate').value) || 0.3;
+  var invCost = parseFloat(document.getElementById('invCost').value) || 0.25;
+  var invYears = (document.getElementById('invYears').value || '10,20').split(',').map(function(s){return parseInt(s.trim())}).filter(function(v){return !isNaN(v)});
+  var loanRatio = parseFloat(document.getElementById('loanRate').value) !== undefined
+    ? (parseFloat(document.getElementById('loanRatio').value) || 70) / 100
+    : 0;
+  var loanRate = parseFloat(document.getElementById('loanRate').value) !== undefined
+    ? (parseFloat(document.getElementById('loanRate').value) || 4.0) / 100
+    : 0;
+  var loanTerm = parseInt(document.getElementById('loanTerm').value) || 15;
+  var discountRate = parseFloat(document.getElementById('discountRate').value) !== undefined
+    ? (parseFloat(document.getElementById('discountRate').value) || 6.0) / 100
+    : 0.06;
+  var depYears = parseInt(document.getElementById('depYears').value) || 20;
+  var taxRate = parseFloat(document.getElementById('taxRate').value) !== undefined
+    ? (parseFloat(document.getElementById('taxRate').value) || 25) / 100
+    : 0.25;
+
+  // In quick mode, use sensible defaults
+  if (currentMode === 'quick') {
+    loanRatio = 0.7; loanRate = 0.04; loanTerm = 15; depYears = 20; taxRate = 0.25; discountRate = 0.06;
+    invYears = [10,20]; invCost = 0.25; insRate = 0.3; omRate = 1.0;
+  }
+
+  // --- Calculate generation over lifetime ---
+  var initialInvestment = capacity * unitCost * 1000; // 元 (unitCost is 元/Wp)
+  var yearlyGen = [];
+  var cumulativeDeg = 1.0;
+  for (var y = 1; y <= calcYears; y++) {
+    if (y === 1) {
+      cumulativeDeg = 1 - degY1 / 100;
+    } else {
+      cumulativeDeg = cumulativeDeg * (1 - degYn / 100);
+    }
+    yearlyGen.push({
+      year: y,
+      gen: capacity * sunHours * pr * cumulativeDeg,
+      degFactor: cumulativeDeg
+    });
+  }
+
+  var annualBaseGen = capacity * sunHours * pr;
+
+  // --- Calculate annual cash flows ---
+  var cashFlows = [];
+  var totalCostSum = 0;
+
+  // Loan repayment (equal principal + interest)
+  var loanPrincipal = initialInvestment * loanRatio;
+  var monthlyRate = loanRate / 12;
+  var totalMonths = loanTerm * 12;
+  var monthlyPayment = loanPrincipal * (monthlyRate * Math.pow(1+monthlyRate, totalMonths))
+    / (Math.pow(1+monthlyRate, totalMonths) - 1);
+  var annualLoanPayment = monthlyPayment * 12;
+  var annualDepreciation = initialInvestment * (1 - 0.05) / depYears; // 5% residual
+
+  for (var y = 1; y <= calcYears; y++) {
+    var g = yearlyGen[y-1];
+    var gen = g.gen;
+    // Revenue
+    var selfUseRev = gen * selfUseRatio * retailPrice;
+    var feedInRev = gen * (1 - selfUseRatio) * feedInPrice;
+    var totalRev = selfUseRev + feedInRev;
+
+    // Costs
+    var omCost = initialInvestment * (omRate / 100);
+    var insCost = initialInvestment * (insRate / 100);
+    var invReplace = 0;
+    if (invYears.indexOf(y) >= 0) invReplace = invCost * capacity * 1000;
+    var totalCostYr = omCost + insCost + invReplace;
+
+    // Financing
+    var interestYr = 0;
+    if (y <= loanTerm) {
+      // Approximate: average outstanding balance
+      var balance = loanPrincipal * (1 - (y-1)/loanTerm);
+      interestYr = balance * loanRate;
+    }
+    var loanPayYr = y <= loanTerm ? annualLoanPayment : 0;
+    var principalPayYr = loanPayYr - interestYr;
+
+    // Tax shield
+    var taxableIncome = totalRev - totalCostYr - interestYr - annualDepreciation;
+    var tax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+
+    // Net cash flow (equity perspective: exclude loan principal as outflow at start, include debt service)
+    var netCF = totalRev - totalCostYr - loanPayYr + (annualDepreciation * taxRate > 0 ? 0 : 0);
+    // Better: Free Cash Flow to Project (before debt service)
+    var projectCF = totalRev - totalCostYr - tax;
+    if (currentMode === 'quick') {
+      projectCF = totalRev - totalCostYr;
+    }
+    totalCostSum += totalCostYr;
+
+    cashFlows.push({
+      year: y,
+      gen: gen,
+      selfUseRev: selfUseRev,
+      feedInRev: feedInRev,
+      totalRev: totalRev,
+      omCost: omCost,
+      insCost: insCost,
+      invReplace: invReplace,
+      totalCost: totalCostYr,
+      interest: interestYr,
+      principalPay: principalPayYr,
+      depreciation: annualDepreciation,
+      tax: tax,
+      projectCF: projectCF,
+      equityCF: projectCF - loanPayYr + (y <= 1 ? loanPrincipal : 0)
+    });
+  }
+
+  // Initial investment cash flow
+  var equityInvestment = initialInvestment * (1 - loanRatio);
+  var allCFs = [{year:0,cf:-initialInvestment}];
+  for (var y = 0; y < calcYears; y++) {
+    allCFs.push({year:y+1, cf: cashFlows[y].projectCF});
+  }
+
+  // --- Calculate KPIs ---
+  // NPV
+  var npv = calcNPV(allCFs, discountRate);
+  // IRR
+  var irr = calcIRR(allCFs);
+  // Payback period
+  var payback = calcPaybackPeriod(allCFs);
+  // LCOE
+  var totalGen = yearlyGen.reduce(function(s,g){return s+g.gen}, 0);
+  var totalCost = initialInvestment;
+  for (var y = 0; y < calcYears; y++) {
+    var cf = cashFlows[y];
+    totalCost += cf.totalCost - (currentMode === 'quick' ? 0 : 0);
+    // For LCOE: include all lifetime costs, discount
+  }
+  var lcoe = calcLCOE(cashFlows, yearlyGen, initialInvestment, discountRate);
+  var annualRev = cashFlows[0].totalRev;
+  var totalRevenue = cashFlows.reduce(function(s,cf){return s+cf.totalRev}, 0);
+
+  // --- Display Results ---
+  document.getElementById('rPayback').textContent = payback < calcYears ? payback.toFixed(1) + ' 年' : '>'+calcYears+'年';
+  document.getElementById('rIRR').textContent = (irr * 100).toFixed(2) + '%';
+  document.getElementById('rNPV').textContent = fmtMoney(Math.round(npv));
+  document.getElementById('rLCOE').textContent = lcoe.toFixed(4) + ' 元/kWh';
+  document.getElementById('rAnnualGen').textContent = fmt(Math.round(annualBaseGen * pr)) + ' kWh';
+  document.getElementById('rAnnualRev').textContent = fmtMoney(Math.round(annualRev));
+  document.getElementById('rTotalRev').textContent = fmtMoney(Math.round(totalRevenue));
+  document.getElementById('rTotalCost').textContent = fmtMoney(Math.round(totalCostSum + initialInvestment));
+
+  // --- Render charts ---
+  renderCashFlowChart(allCFs);
+  renderRevenueChart(cashFlows[0]);
+
+  // --- Render table ---
+  var tbody = document.getElementById('cashFlowBody');
+  tbody.innerHTML = '';
+  var cumCF = -initialInvestment;
+  for (var y = 0; y < calcYears; y++) {
+    var cf = cashFlows[y];
+    cumCF += cf.projectCF;
+    var tr = document.createElement('tr');
+    if (y % 2 === 1) tr.style.background = '#fafafa';
+    tr.innerHTML = '<td>' + cf.year + '</td>'
+      + '<td>' + fmt(Math.round(cf.gen)) + '</td>'
+      + '<td>' + fmtMoney(Math.round(cf.selfUseRev)) + '</td>'
+      + '<td>' + fmtMoney(Math.round(cf.feedInRev)) + '</td>'
+      + '<td>' + fmtMoney(Math.round(cf.totalCost)) + '</td>'
+      + '<td style="font-weight:600">' + fmtMoney(Math.round(cf.projectCF)) + '</td>'
+      + '<td style="font-weight:600;color:' + (cumCF>=0?'#2e7d32':'#c62828') + '">' + fmtMoney(Math.round(cumCF)) + '</td>';
+    tbody.appendChild(tr);
+  }
+
+  // Show results
+  document.getElementById('results').style.display = '';
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ============================================================
+// 6. FINANCIAL FUNCTIONS
+// ============================================================
+function calcNPV(cashFlows, rate) {
+  var npv = 0;
+  for (var i = 0; i < cashFlows.length; i++) {
+    npv += cashFlows[i].cf / Math.pow(1 + rate, cashFlows[i].year);
+  }
+  return npv;
+}
+
+function calcIRR(cashFlows) {
+  // Newton's method
+  var guess = 0.08;
+  for (var iter = 0; iter < 100; iter++) {
+    var npv = 0, dnpv = 0;
+    for (var i = 0; i < cashFlows.length; i++) {
+      var t = cashFlows[i].year;
+      npv += cashFlows[i].cf / Math.pow(1 + guess, t);
+      dnpv -= t * cashFlows[i].cf / Math.pow(1 + guess, t + 1);
+    }
+    if (Math.abs(npv) < 1e-6) return guess;
+    if (dnpv === 0) break;
+    guess = guess - npv / dnpv;
+    if (guess < -0.99) return -0.99;
+    if (guess > 10) return 10;
+  }
+  // Fallback: secant method
+  var r0 = 0.01, r1 = 0.20;
+  for (var iter = 0; iter < 50; iter++) {
+    var f0 = calcNPV(cashFlows, r0);
+    var f1 = calcNPV(cashFlows, r1);
+    if (Math.abs(f1) < 1e-6) return r1;
+    var r2 = r1 - f1 * (r1 - r0) / (f1 - f0);
+    if (r2 < -0.99) r2 = -0.99;
+    if (r2 > 10) r2 = 10;
+    r0 = r1; r1 = r2;
+  }
+  return r1;
+}
+
+function calcPaybackPeriod(cashFlows) {
+  var cum = 0;
+  for (var i = 0; i < cashFlows.length; i++) {
+    cum += cashFlows[i].cf;
+    if (cum >= 0) {
+      var prevCum = cum - cashFlows[i].cf;
+      return cashFlows[i].year - 1 + (0 - prevCum) / (cum - prevCum);
+    }
+  }
+  return 999;
+}
+
+function calcLCOE(cashFlows, genData, initialInvestment, discountRate) {
+  var pvCost = 0, pvGen = 0;
+  for (var y = 1; y <= cashFlows.length; y++) {
+    var cost = y === 1 ? initialInvestment : 0;
+    cost += cashFlows[y-1].totalCost;
+    pvCost += cost / Math.pow(1 + discountRate, y);
+    pvGen += genData[y-1].gen / Math.pow(1 + discountRate, y);
+  }
+  return pvGen > 0 ? pvCost / pvGen : 0;
+}
+
+// ============================================================
+// 7. CHARTS
+// ============================================================
+var chart1 = null, chart2 = null;
+
+function renderCashFlowChart(allCFs) {
+  var ctx = document.getElementById('cashFlowChart').getContext('2d');
+  if (chart1) chart1.destroy();
+
+  var labels = [], cumData = [], yearlyData = [];
+  var cum = 0;
+  for (var i = 0; i < allCFs.length; i++) {
+    labels.push('第' + allCFs[i].year + '年');
+    cum += allCFs[i].cf;
+    cumData.push(Math.round(cum));
+    yearlyData.push(Math.round(allCFs[i].cf));
+  }
+
+  chart1 = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: '年净现金流',
+          data: yearlyData,
+          backgroundColor: yearlyData.map(function(v){return v>=0?'rgba(0,122,255,0.7)':'rgba(255,59,48,0.7)'}),
+          borderRadius: 4,
+          order: 2
+        },
+        {
+          label: '累计现金流',
+          data: cumData,
+          type: 'line',
+          borderColor: '#34c759',
+          backgroundColor: 'rgba(52,199,89,0.1)',
+          fill: true,
+          pointRadius: 3,
+          pointBackgroundColor: '#34c759',
+          borderWidth: 2.5,
+          tension: 0.3,
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {position:'bottom', labels:{usePointStyle:true, padding:16, font:{size:11}}}
+      },
+      scales: {
+        x: {grid:{display:false}, ticks:{font:{size:10}, maxTicksLimit:15}},
+        y: {grid:{color:'rgba(0,0,0,0.05)'}, ticks:{callback:function(v){return '¥'+(v/10000).toFixed(0)+'万'}, font:{size:10}}}
+      }
+    }
+  });
+}
+
+function renderRevenueChart(firstYear) {
+  var ctx = document.getElementById('revenueChart').getContext('2d');
+  if (chart2) chart2.destroy();
+
+  var selfUse = Math.round(firstYear.selfUseRev);
+  var feedIn = Math.round(firstYear.feedInRev);
+  var total = selfUse + feedIn;
+
+  chart2 = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['自发自用收益 (' + Math.round(selfUse/total*100) + '%)', '余电上网收益 (' + Math.round(feedIn/total*100) + '%)'],
+      datasets: [{
+        data: [selfUse, feedIn],
+        backgroundColor: ['#007AFF', '#ff9500'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: {position:'bottom', labels:{usePointStyle:true, padding:16, font:{size:11}}},
+        tooltip: {callbacks:{label:function(ctx){return ctx.label + ': ' + fmtMoney(ctx.raw)}}}
+      }
+    }
+  });
+}
+
+// ============================================================
+// 8. EXPORT
+// ============================================================
+function exportCSV() {
+  var rows = [['年份','发电量(kWh)','自发自用收益(元)','余电收益(元)','运维成本(元)','净现金流(元)','累计现金流(元)']];
+  var cum = -document.getElementById('rTotalCost').textContent.replace(/[^0-9]/g,'') || 0;
+  // Re-read from table
+  var tableRows = document.querySelectorAll('#cashFlowBody tr');
+  tableRows.forEach(function(tr){
+    var cells = tr.querySelectorAll('td');
+    var row = [];
+    cells.forEach(function(c){row.push(c.textContent.replace(/¥/g,'').replace(/,/g,''));});
+    rows.push(row);
+  });
+  var csv = rows.map(function(r){return r.join(',')}).join('\n');
+  var blob = new Blob(['﻿' + csv], {type:'text/csv;charset=utf-8;'});
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = '光伏收益测算_' + new Date().toISOString().slice(0,10) + '.csv';
+  link.click();
+}
+
+// ============================================================
+// 9. INIT
+// ============================================================
+// Set import zone drag events
+var iz = document.getElementById('importZone');
+iz.addEventListener('dragover', function(e){e.preventDefault();iz.classList.add('dragover');});
+iz.addEventListener('dragleave', function(){iz.classList.remove('dragover');});
+iz.addEventListener('drop', function(e){
+  e.preventDefault();
+  iz.classList.remove('dragover');
+  if (e.dataTransfer.files.length) {
+    document.getElementById('fileInput').files = e.dataTransfer.files;
+    document.getElementById('fileInput').dispatchEvent(new Event('change'));
+  }
+});
+
+// Initialize
+switchMode('quick');
+selectTariff('coal');
+onProvinceChange();
+</script>
+</body>
+</html>
