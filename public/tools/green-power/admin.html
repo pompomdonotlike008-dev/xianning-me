@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>绿电直连电费计算器 - 管理后台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#f5f5f7]">
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="text-center mb-8">
+    <h1 class="text-2xl font-bold text-[#1a1a1a]">⚙️ 充值码管理系统</h1>
+    <p class="text-sm text-[#86868b] mt-1">生成 · 查看 · 管理充值码</p>
+  </div>
+
+  <div class="card bg-white rounded-2xl p-6 shadow-sm mb-4">
+    <p class="text-sm text-[#555] mb-3">需要先设置管理员密钥才能操作</p>
+    <div class="flex gap-2">
+      <input type="password" id="adminKey" class="flex-1 p-3 border border-[#e5e5ea] rounded-xl text-sm" placeholder="输入管理员密钥">
+      <button class="bg-[#007AFF] text-white px-6 py-3 rounded-xl text-sm font-semibold" onclick="login()">登录</button>
+    </div>
+  </div>
+
+  <div id="adminPanel" style="display:none">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div class="card bg-white rounded-2xl p-6 shadow-sm">
+        <p class="text-xs text-[#86868b] uppercase font-semibold">生成充值码</p>
+        <button class="mt-3 bg-[#34C759] text-white px-5 py-2.5 rounded-xl text-sm font-semibold w-full" onclick="generateCode()">🔑 生成1个新充值码</button>
+        <div id="genResult" class="mt-3 text-sm text-center font-mono font-bold text-[#007AFF]" style="display:none"></div>
+      </div>
+      <div class="card bg-white rounded-2xl p-6 shadow-sm">
+        <p class="text-xs text-[#86868b] uppercase font-semibold">管理员免费名单</p>
+        <p class="text-sm text-[#555] mt-1">添加微信昵称，使用时不扣费</p>
+        <div class="flex gap-2 mt-2">
+          <input type="text" id="adminName" class="flex-1 p-2.5 border border-[#e5e5ea] rounded-xl text-sm" placeholder="输入管理员昵称">
+          <button class="bg-[#007AFF] text-white px-4 py-2.5 rounded-xl text-sm font-semibold" onclick="addAdmin()">添加</button>
+        </div>
+        <div id="adminList" class="mt-2 text-xs text-[#86868b]"></div>
+      </div>
+    </div>
+
+    <div class="card bg-white rounded-2xl p-6 shadow-sm mb-4">
+      <p class="font-semibold text-[#1a1a1a] mb-3">📋 充值码历史</p>
+      <div id="codeList" class="text-sm text-[#86868b]">加载中...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = '/api';
+
+function login() {
+  var key = document.getElementById('adminKey').value;
+  if (!key) return alert('请输入密钥');
+  document.getElementById('adminPanel').style.display = 'block';
+  loadCodes();
+  loadAdmins();
+}
+
+async function api(path, data) {
+  var key = document.getElementById('adminKey').value;
+  var resp = await fetch(API_BASE + path, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(Object.assign({adminKey: key}, data || {}))
+  });
+  return resp.json();
+}
+
+async function generateCode() {
+  var r = await api('/generate', {});
+  if (r.ok) {
+    document.getElementById('genResult').style.display = 'block';
+    document.getElementById('genResult').textContent = '✅ ' + r.code;
+    loadCodes();
+  } else {
+    alert('失败: ' + r.error);
+  }
+}
+
+async function loadCodes() {
+  var r = await api('/list', {});
+  var el = document.getElementById('codeList');
+  if (r.codes && r.codes.length) {
+    el.innerHTML = '<div class="space-y-1">' + r.codes.map(function(c){
+      var status = c.used ? '<span class="text-[#999]">已使用 ' + c.usedBy + '</span>' : '<span class="text-[#34C759]">未使用</span>';
+      return '<div class="flex justify-between p-2 bg-[#f5f5f7] rounded-lg"><span class="font-mono font-bold">' + c.code + '</span>' + status + '<span class="text-[#a1a1a6]">' + c.created + '</span></div>';
+    }).join('') + '</div>';
+  } else {
+    el.textContent = '暂无充值码记录';
+  }
+}
+
+async function loadAdmins() {
+  var r = await api('/admins', {});
+  var el = document.getElementById('adminList');
+  el.textContent = r.admins ? '白名单: ' + r.admins.join(', ') : '(无)';
+}
+
+async function addAdmin() {
+  var name = document.getElementById('adminName').value;
+  if (!name) return;
+  await api('/add-admin', {name: name});
+  document.getElementById('adminName').value = '';
+  loadAdmins();
+}
+</script>
+</body>
+</html>

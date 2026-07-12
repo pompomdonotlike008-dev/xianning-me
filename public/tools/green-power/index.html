@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>绿电直连电费计算器</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { font-family: 'Inter', 'PingFang SC', 'Helvetica Neue', sans-serif; }
+  body { background: #f5f5f7; }
+  .card { background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .param-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; transition: border-color 0.2s, box-shadow 0.2s; }
+  .param-card:hover { border-color: #d0d0d8; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+  .input-field { width: 100%; padding: 12px 16px; border: 1.5px solid #e5e5ea; border-radius: 12px; font-size: 16px; color: #1a1a1a; outline: none; transition: all 0.2s; background: #fafafa; font-weight: 500; }
+  .input-field:focus { border-color: #007AFF; box-shadow: 0 0 0 4px rgba(0,122,255,0.1); background: #fff; }
+  .input-field::placeholder { color: #c7c7cc; font-weight: 400; }
+  .input-group { margin-bottom: 12px; }
+  .input-group label { display: block; font-size: 12px; font-weight: 600; color: #86868b; letter-spacing: 0.3px; margin-bottom: 6px; text-transform: uppercase; }
+  .input-unit { font-size: 12px; color: #a1a1a6; margin-top: 4px; padding-left: 4px; }
+  .result-card { border-radius: 20px; padding: 24px; position: relative; overflow: hidden; }
+  .result-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+  .result-two::before { background: linear-gradient(90deg, #d4af37, #f0d68a); }
+  .result-cap::before { background: linear-gradient(90deg, #007AFF, #5AC8FA); }
+  .result-value { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
+  .result-item { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid rgba(0,0,0,0.04); }
+  .result-item:last-child { border-bottom: none; }
+  .section-badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; }
+  .badge-win { background: #e8f5e9; color: #2e7d32; }
+  .badge-lose { background: #fff5f5; color: #c62828; }
+  .badge-equal { background: #f5f5f7; color: #86868b; }
+  .gauge-bg { background: linear-gradient(90deg, #FF3B30 0%, #FF9500 30%, #FFCC00 50%, #34C759 70%, #007AFF 100%); height: 12px; border-radius: 6px; position: relative; }
+  .gauge-pointer { position: absolute; top: -10px; width: 32px; height: 32px; background: #fff; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transform: translateX(-50%); transition: left 0.5s cubic-bezier(0.25, 0.1, 0.25, 1); display: flex; align-items: center; justify-content: center; font-size: 14px; border: 2px solid #e5e5ea; }
+  .summary-change { font-size: 15px; font-weight: 700; padding: 8px 16px; border-radius: 12px; display: inline-block; }
+  .payment-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px); }
+  .payment-modal { background: #fff; border-radius: 24px; padding: 32px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .payment-step { display: none; }
+  .payment-step.active { display: block; }
+  .recharge-input { width: 100%; padding: 14px 16px; border: 1.5px solid #e5e5ea; border-radius: 12px; font-size: 16px; text-align: center; letter-spacing: 2px; font-weight: 600; outline: none; }
+  .recharge-input:focus { border-color: #007AFF; box-shadow: 0 0 0 4px rgba(0,122,255,0.1); }
+  .usage-badge { position: fixed; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: #fff; font-size: 12px; padding: 6px 14px; border-radius: 20px; z-index: 100; backdrop-filter: blur(8px); }
+  @media (max-width: 640px) {
+    .card { padding: 20px 16px; }
+    .param-card { padding: 16px; }
+    .result-value { font-size: 26px; }
+    .result-card { padding: 18px; }
+  }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(0,122,255,0.4)} 50%{box-shadow:0 0 0 12px rgba(0,122,255,0)} }
+</style>
+</head>
+<body>
+
+<!-- Payment Wall -->
+<div class="usage-badge" id="usageBadge">加载中</div>
+
+<div class="payment-overlay" id="paymentOverlay" style="display:flex!important">
+<script>document.getElementById('paymentOverlay').style.display='flex'</script>
+  <div class="payment-modal">
+    <div class="payment-step active" id="payStep1">
+      <span style="font-size:48px">🔒</span>
+      <h3 style="font-size:20px;font-weight:700;color:#1a1a1a;margin:12px 0 4px">免费次数已用完</h3>
+      <p style="font-size:14px;color:#86868b;margin-bottom:14px">关注公众号获取使用资格</p>
+
+      <div style="background:#f5f5f7;border-radius:16px;padding:14px;margin-bottom:14px;text-align:center">
+        <p style="font-size:14px;color:#1a1a1a;font-weight:600;margin-bottom:6px">📱 关注「王炸小纸条」</p>
+        <p style="font-size:12px;color:#86868b;margin-bottom:10px">微信扫码关注，输入昵称即可使用</p>
+        <img src="qrcode.png" style="width:140px;height:140px;border-radius:12px;margin:0 auto" alt="公众号二维码">
+      </div>
+
+      <div style="background:#f0f7ff;border-radius:12px;padding:12px 14px;margin-bottom:14px">
+        <p style="font-size:13px;color:#1a1a1a;font-weight:600;text-align:center">✅ 已关注？输入微信昵称</p>
+        <input type="text" id="wechatNick" class="recharge-input mt-2" placeholder="你的微信昵称" maxlength="20" autocomplete="off">
+        <button class="mt-2 bg-[#34C759] text-white border-none rounded-xl px-5 py-2.5 text-sm font-semibold cursor-pointer w-full" onclick="unlockByFollow()">🔓 获取使用资格</button>
+        <p style="font-size:10px;color:#999;margin-top:4px;text-align:center">限免1次。提交后管理员会收到通知，授权后自动解锁</p>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #e5e5ea;margin:12px 0">
+
+      <div style="background:#f5f5f7;border-radius:12px;padding:12px;margin-bottom:10px">
+        <p style="font-size:13px;color:#555;font-weight:500;margin-bottom:6px">💎 赞赏20元继续使用</p>
+        <img src="reward.png" style="width:120px;height:120px;border-radius:10px;margin:0 auto" alt="赞赏码">
+        <p style="font-size:10px;color:#999;margin-top:4px">赞赏后输入昵称，提交即自动解锁</p>
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:8px 10px;margin-top:8px">
+        <p style="font-size:12px;color:#e65100;font-weight:600;margin:0">💎 赞赏200元获永久使用权</p>
+        <p style="font-size:10px;color:#999;margin:2px 0 0">联系公众号加入白名单，永久免费用</p></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <input type="text" id="adminUnlockInput" class="flex-1 p-2.5 border border-[#e5e5ea] rounded-xl text-sm text-center" placeholder="管理员解锁码" maxlength="8">
+        <button class="bg-[#007AFF] text-white px-4 py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer" onclick="adminUnlock()">验证</button>
+      </div>
+    </div>
+
+    <div class="payment-step" id="payStep2">
+      <span style="font-size:64px">🎉</span>
+      <h3 style="font-size:20px;font-weight:700;color:#1a1a1a;margin:12px 0 4px" id="successTitle">解锁成功！</h3>
+      <p style="font-size:14px;color:#86868b;margin-bottom:16px" id="successDesc">欢迎关注「王炸小纸条」</p>
+      <button class="bg-[#007AFF] text-white border-none rounded-xl px-8 py-2.5 text-sm font-semibold cursor-pointer" onclick="closePayment()">开始计算</button>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-5xl mx-auto px-4 py-6 md:py-10">
+
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <div class="text-5xl mb-3" id="adminTrigger" onclick="adminClick()">⚡</div>
+    <h1 class="text-3xl md:text-4xl font-extrabold text-[#1a1a1a] tracking-tight">绿电直连电费计算器</h1>
+    <p class="text-base md:text-lg text-[#86868b] mt-2 font-medium">两部制 vs 容量制 · 月度电费对比</p>
+    <div class="flex items-center justify-center gap-3 mt-3 text-xs text-[#a1a1a6]">
+      <span class="px-3 py-1 bg-[#f5f5f7] rounded-full">基于1192号文</span>
+      <span class="px-3 py-1 bg-[#f5f5f7] rounded-full">实时计算</span>
+    </div>
+  </div>
+
+  <!-- Live Result Summary -->
+  <div id="liveSummary" class="card mb-6 text-center" style="display:none;">
+    <p class="text-sm text-[#86868b] font-medium">推荐方案</p>
+    <div id="recommendation" class="text-xl font-bold mt-1"></div>
+    <div class="gauge-bg mt-4 max-w-md mx-auto relative" id="gaugeContainer">
+      <div class="gauge-pointer" id="gaugePointer">💡</div>
+    </div>
+    <div class="flex justify-between text-xs text-[#a1a1a6] mt-2 max-w-md mx-auto">
+      <span>两部制更省</span>
+      <span>⬇</span>
+      <span>容量制更省</span>
+    </div>
+  </div>
+
+  <!-- Input Section -->
+  <div class="card mb-6">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="text-2xl">📋</span>
+      <div>
+        <h2 class="text-xl font-bold text-[#1a1a1a]">参数输入</h2>
+        <p class="text-sm text-[#86868b]">填写以下参数，系统自动对比两种模式</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+      <!-- 基础参数 -->
+      <div class="md:col-span-2 lg:col-span-3">
+        <div class="flex items-center gap-2 mt-2 mb-3">
+          <span class="text-sm">📐</span>
+          <span class="text-sm font-bold text-[#1a1a1a]">基础参数</span>
+          <div class="flex-1 h-px bg-[#e5e5ea]"></div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>📦 容量/需量 (T)</label>
+          <input type="number" id="T" class="input-field" value="120000" step="1" min="0" placeholder="例如 120000">
+          <div class="input-unit">单位：kVA 或 kW</div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>💰 容量电价/需量电价</label>
+          <input type="number" id="p_cap" class="input-field" value="23.4" step="0.1" min="0" placeholder="例如 23.4">
+          <div class="input-unit">单位：元/kVA 或 元/kW</div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>📊 全省平均负荷率 (LFm)</label>
+          <input type="number" id="LFm" class="input-field" value="46" step="0.1" min="0" max="100" placeholder="例如 46">
+          <div class="input-unit">单位：%</div>
+        </div>
+      </div>
+
+      <!-- 电量参数 -->
+      <div class="md:col-span-2 lg:col-span-3">
+        <div class="flex items-center gap-2 mt-2 mb-3">
+          <span class="text-sm">🔋</span>
+          <span class="text-sm font-bold text-[#1a1a1a]">电量参数</span>
+          <div class="flex-1 h-px bg-[#e5e5ea]"></div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>🌿 绿电供给电量 (E新)</label>
+          <input type="number" id="E_new" class="input-field" value="23220395" step="100" min="0" placeholder="例如 23220395">
+          <div class="input-unit">单位：kWh</div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>🏭 购买大网电量 (E网)</label>
+          <input type="number" id="E_grid" class="input-field" value="23220395" step="100" min="0" placeholder="同上例">
+          <div class="input-unit">单位：kWh</div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>📈 用户实际负荷率 (LF)</label>
+          <input type="number" id="LF" class="input-field" value="53.01" step="0.01" min="0" max="100" placeholder="例如 53.01">
+          <div class="input-unit">单位：%</div>
+        </div>
+      </div>
+
+      <!-- 电价参数 -->
+      <div class="md:col-span-2 lg:col-span-3">
+        <div class="flex items-center gap-2 mt-2 mb-3">
+          <span class="text-sm">💵</span>
+          <span class="text-sm font-bold text-[#1a1a1a]">电价参数</span>
+          <div class="flex-1 h-px bg-[#e5e5ea]"></div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>🌱 绿电协议价 (p协议)</label>
+          <input type="number" id="p_green" class="input-field" value="0.4569835" step="0.001" min="0" placeholder="0.457">
+          <div class="input-unit">元/kWh</div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>🔌 大网购电价格 (p购)</label>
+          <input type="number" id="p_buy" class="input-field" value="0.376999" step="0.001" min="0" placeholder="0.377">
+          <div class="input-unit">元/kWh</div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>🔗 电度输配电价 (p输配)</label>
+          <input type="number" id="p_trans" class="input-field" value="0.1105" step="0.001" min="0" placeholder="0.1105">
+          <div class="input-unit">元/kWh</div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>📉 线损电价 (p损)</label>
+          <input type="number" id="p_loss" class="input-field" value="0.017833" step="0.001" min="0" placeholder="0.0178">
+          <div class="input-unit">元/kWh</div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>⚙️ 运行电价 (p运)</label>
+          <input type="number" id="p_op" class="input-field" value="0.035399" step="0.001" min="0" placeholder="0.0354">
+          <div class="input-unit">元/kWh</div>
+        </div>
+      </div>
+      <div class="param-card">
+        <div class="input-group">
+          <label>🏛️ 政府基金及附加 (p附)</label>
+          <input type="number" id="p_fund" class="input-field" value="0.0267525" step="0.001" min="0" placeholder="0.0268">
+          <div class="input-unit">元/kWh</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-6">
+      <button id="calcBtn" class="bg-[#007AFF] text-white border-none rounded-xl px-10 py-3.5 text-base font-bold cursor-pointer transition-all hover:bg-[#0066d6] hover:shadow-lg hover:shadow-blue-500/25 active:scale-[0.98]" onclick="doCalc()">
+        ⚡ 开始计算
+      </button>
+    </div>
+  </div>
+
+  <!-- Validation Hint -->
+  <div class="card mb-6" style="display:none" id="validationHint">
+    <div class="flex items-center gap-2">
+      <span class="text-lg">📐</span>
+      <div>
+        <p style="font-size:13px;font-weight:600;color:#1a1a1a;margin:0">验算条件</p>
+        <p style="font-size:12px;color:#86868b;margin:2px 0 0">E新 + E网 = 主变容量 × 实际负荷率 × 730</p>
+        <p style="font-size:12px;color:#555;margin:2px 0 0" id="validationDetail"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results" style="display:none;">
+
+    <!-- Side-by-side result cards - 3 columns -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+      <div class="result-card" style="background:#faf8f4">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-lg">📊</span>
+          <span class="section-badge" style="background:rgba(212,175,55,0.15);color:#b8942e;">传统两部制</span>
+        </div>
+        <p class="text-xs text-[#999] mb-1">全部大网购电</p>
+        <div class="result-value text-[#1a1a1a] mb-3" id="result_trad">--</div>
+        <div class="text-sm text-[#666]" id="detail_trad"></div>
+      </div>
+      <div class="result-card" style="background:#faf8f4">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-lg">🌿</span>
+          <span class="section-badge" style="background:rgba(212,175,55,0.15);color:#b8942e;">绿电两部制</span>
+        </div>
+        <p class="text-xs text-[#999] mb-1">绿电协议价 + 两部制输配</p>
+        <div class="result-value text-[#1a1a1a] mb-3" id="result_two">--</div>
+        <div class="text-sm text-[#666]" id="detail_two"></div>
+      </div>
+      <div class="result-card" style="background:#f0f7ff">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-lg">⚡</span>
+          <span class="section-badge" style="background:rgba(0,122,255,0.12);color:#007AFF;">绿电容量制</span>
+        </div>
+        <p class="text-xs text-[#888] mb-1">容量制输配 + 绿电直连</p>
+        <div class="result-value text-[#007AFF] mb-3" id="result_cap">--</div>
+        <div class="text-sm text-[#555]" id="detail_cap"></div>
+      </div>
+    </div>
+
+    <!-- Analysis -->
+    <div class="card mb-6">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-xl">📊</span>
+        <h2 class="text-lg font-bold text-[#1a1a1a]">差异分析</h2>
+      </div>
+      <div id="analysis_content" class="mt-2"></div>
+    </div>
+
+    <!-- Detailed comparison -->
+    <div class="card">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-xl">🔬</span>
+        <h2 class="text-lg font-bold text-[#1a1a1a]">分项明细对比</h2>
+      </div>
+      <p class="text-sm text-[#86868b] mb-4">逐项对比两种模式的费用构成</p>
+      <div id="comparison_table"></div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="text-center mt-10 mb-6">
+    <p class="text-xs text-[#c7c7cc] leading-relaxed">王炸小纸条 · 绿电直连电费计算器<br>基于1192号文的完整电费模型 · 以上为个人学习模型，不构成任何投资或工作建议</p>
+  </div>
+</div>
+
+
+<script>
+try { if (!localStorage.getItem('_v8')) { localStorage.clear(); localStorage.setItem('_v8', '1'); } } catch(e) {}
+var _click = 0;
+function fmt(n) { return Number(n).toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0}); }
+
+function __runCalc() {
+  // 清零上次结果 + 显示计算中提示
+  try {
+    document.getElementById('result_trad').textContent = '';
+    document.getElementById('result_two').textContent = '';
+    document.getElementById('result_cap').textContent = '';
+    document.getElementById('detail_trad').innerHTML = '';
+    document.getElementById('detail_two').innerHTML = '';
+    document.getElementById('detail_cap').innerHTML = '';
+    document.getElementById('analysis_content').innerHTML = '';
+    document.getElementById('comparison_table').innerHTML = '';
+    document.getElementById('recommendation').innerHTML = '';
+    document.getElementById('gaugePointer').style.left = '50%';
+    document.getElementById('liveSummary').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('validationHint').style.display = 'none';
+    var _calcBtn = document.getElementById('calcBtn');
+    if (_calcBtn) { _calcBtn.textContent = '📊 计算中...'; }
+  } catch(e) {}
+  var T = parseFloat(document.getElementById('T').value) || 0;
+  var p_cap = parseFloat(document.getElementById('p_cap').value) || 0;
+  var E_new = parseFloat(document.getElementById('E_new').value) || 0;
+  var E_grid = parseFloat(document.getElementById('E_grid').value) || 0;
+  var p_protocol = parseFloat(document.getElementById('p_green').value) || 0;
+  var p_buy = parseFloat(document.getElementById('p_buy').value) || 0;
+  var p_trans = parseFloat(document.getElementById('p_trans').value) || 0;
+  var p_loss = parseFloat(document.getElementById('p_loss').value) || 0;
+  var p_op = parseFloat(document.getElementById('p_op').value) || 0;
+  var p_fund = parseFloat(document.getElementById('p_fund').value) || 0;
+  var LFm = parseFloat(document.getElementById('LFm').value) || 0;
+  var LF = parseFloat(document.getElementById('LF').value) || 0;
+
+  var H = 730;
+  var E_total = E_new + E_grid;
+  var E_calc = T * (LF / 100) * H;
+  var p_full = p_buy + p_loss + p_trans + p_op + p_fund;
+  var p_grid_no_trans = p_buy + p_loss + p_op + p_fund;
+
+  // === 验证 + 显示验算条件 ===
+  document.getElementById('validationHint').style.display = 'block';
+  var diff_pct = Math.abs(E_total - E_calc) / Math.max(E_calc, 1) * 100;
+  var statusColor = diff_pct < 0.5 ? '#34C759' : '#FF3B30';
+  var statusText = diff_pct < 0.5 ? '✅ 通过' : '❌ 不匹配(差' + diff_pct.toFixed(1) + '%)';
+  document.getElementById('validationDetail').innerHTML = '<span class="font-mono">' + E_new.toLocaleString() + ' + ' + E_grid.toLocaleString() + ' = ' + E_total.toLocaleString() + '</span> &nbsp;应等于 <span class="font-mono">' + T.toLocaleString() + ' x ' + LF + '% x 730 = ' + E_calc.toLocaleString() + '</span> &nbsp; <span style="color:' + statusColor + ';font-weight:600">' + statusText + '</span>';
+  if (diff_pct > 0.5) {
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('liveSummary').style.display = 'block';
+    document.getElementById('result_two').textContent = '⚠️ 不匹配';
+    document.getElementById('result_cap').textContent = '⚠️ 不匹配';
+    document.getElementById('detail_two').innerHTML = '<div class="text-sm text-[#c62828]">绿电+大网=' + E_total.toLocaleString() + 'kWh<br>应等于 T x LF x 730 = ' + E_calc.toLocaleString() + '<br>相差 ' + diff_pct.toFixed(1) + '%，请调整参数</div>';
+    document.getElementById('detail_cap').innerHTML = '';
+    document.getElementById('analysis_content').innerHTML = '';
+    document.getElementById('comparison_table').innerHTML = '';
+    document.getElementById('recommendation').innerHTML = '<span class="text-sm text-[#c62828]">调整保证 绿电+大网 = T x LF x 730</span>';
+    document.getElementById('gaugePointer').style.left = '50%';
+    return;
+  }
+  // === 传统两部制（全部大网购电）===
+  var total_trad = T * p_cap + E_total * p_full;
+
+  // === 绿电直连两部制 ===
+  var cap_g2 = T * p_cap;
+  var green_g2 = E_new * (p_protocol + p_fund + p_trans);
+  var grid_g2 = E_grid * p_full;
+  var total_g2 = cap_g2 + green_g2 + grid_g2;
+
+  // === 绿电直连容量制 ===
+  var cap_gc = T * p_cap;
+  var green_gc = E_new * (p_protocol + p_fund);
+  var grid_gc = E_grid * p_grid_no_trans;
+  var trans_gc = T * H * p_trans * (LFm / 100);
+  var total_gc = cap_gc + green_gc + grid_gc + trans_gc;
+
+  // 显示结果容器
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('liveSummary').style.display = 'block';
+
+  var diff = total_gc - total_g2;
+  var diffAbs = Math.abs(diff);
+  var v = '';
+  if (diff < 0) { v = '<span class="badge-win">✅ 容量制更省钱</span> <span class="text-sm">绿电容量制比绿电两部制省 <b class="text-[#2e7d32]">¥ ' + fmt(diffAbs) + '</b></span>'; }
+  else if (diff > 0) { v = '<span class="badge-lose">⚠️ 两部制更省钱</span> <span class="text-sm">绿电容量制比绿电两部制多交 <b class="text-[#c62828]">¥ ' + fmt(diffAbs) + '</b></span>'; }
+  else { v = '<span class="badge-equal">⚖️ 相等</span>'; }
+  document.getElementById('recommendation').innerHTML = v;
+
+  var gv = 50 + (diff / ((total_g2 + total_gc) / 2)) * 25;
+  document.getElementById('gaugePointer').style.left = Math.max(5, Math.min(95, gv)) + '%';
+
+  document.getElementById('result_two').textContent = '¥ ' + fmt(total_g2);
+  document.getElementById('result_cap').textContent = '¥ ' + fmt(total_gc);
+  document.getElementById('result_trad').textContent = '¥ ' + fmt(total_trad);
+  document.getElementById('detail_trad').innerHTML =
+    '<div class="result-item"><span>容量电费</span><span class="font-mono">' + fmt(T * p_cap) + '</span></div>' +
+    '<div class="result-item"><span>大网购电</span><span class="font-mono">' + fmt(E_total * p_full) + '</span></div>' +
+    '<div class="result-item"><span>输配电费</span><span class="font-mono">已含在电度电价中</span></div>';
+  document.getElementById('detail_two').innerHTML =
+    '<div class="result-item"><span>容量电费</span><span class="font-mono">' + fmt(cap_g2) + '</span></div>' +
+    '<div class="result-item"><span>绿电购电</span><span class="font-mono">' + fmt(green_g2) + '</span></div>' +
+    '<div class="result-item"><span>大网购电</span><span class="font-mono">' + fmt(grid_g2) + '</span></div>';
+  document.getElementById('detail_cap').innerHTML =
+    '<div class="result-item"><span>容量电费</span><span class="font-mono">' + fmt(cap_gc) + '</span></div>' +
+    '<div class="result-item"><span>绿电购电</span><span class="font-mono">' + fmt(green_gc) + '</span></div>' +
+    '<div class="result-item"><span>大网购电(不含输配)</span><span class="font-mono">' + fmt(grid_gc) + '</span></div>' +
+    '<div class="result-item"><span>输配电费(容量制)</span><span class="font-mono">' + fmt(trans_gc) + '</span></div>';
+
+  document.getElementById('analysis_content').innerHTML =
+    '<div class="grid grid-cols-1 md:grid-cols-4 gap-3 mt-3">' +
+      '<div class="bg-[#f5f5f7] rounded-xl p-3 text-center"><p class="text-xs text-[#86868b]">传统两部制</p><p class="text-sm font-bold mt-1">¥ ' + fmt(total_trad) + '</p></div>' +
+      '<div class="bg-[#f5f5f7] rounded-xl p-3 text-center"><p class="text-xs text-[#86868b]">绿电两部制</p><p class="text-sm font-bold mt-1 text-[#b8942e]">¥ ' + fmt(total_g2) + '</p></div>' +
+      '<div class="bg-[#f5f5f7] rounded-xl p-3 text-center"><p class="text-xs text-[#86868b]">绿电容量制</p><p class="text-sm font-bold mt-1 text-[#007AFF]">¥ ' + fmt(total_gc) + '</p></div>' +
+      '<div class="rounded-xl p-3 text-center ' + (diff<0?'bg-[#e8f5e9]':diff>0?'bg-[#fff5f5]':'bg-[#f5f5f7]') + '">' +
+        '<p class="text-xs text-[#86868b]">绿电两部→绿电容量</p><p class="text-sm font-bold mt-1 ' + (diff<0?'text-[#2e7d32]':diff>0?'text-[#c62828]':'text-[#86868b]') + '">' + (diff<0?'- ':'+ ')+'¥ ' + fmt(diffAbs) + '</p></div>' +
+    '</div>' +
+    '<hr class="my-3 border-[#e5e5ea]">' +
+    '<div class="flex items-center gap-2 text-sm"><span class="font-semibold">判断：</span>LF = ' + LF + '%, LFm = ' + LFm + '% -> ' +
+    '<span class="font-semibold ' + (LF>LFm?'text-[#2e7d32]':'text-[#c62828]') + '">' + (LF>LFm?'LF > LFm 推荐容量制':'LF < LFm 推荐两部制') + '</span></div>' +
+    '<div style="margin-top:12px;padding-top:10px;border-top:1px solid #e5e5ea;font-size:11px;color:#bbb;text-align:center">已授权：' + (localStorage.getItem('calc_nick') || '管理员') + '</div>';
+
+  document.getElementById('comparison_table').innerHTML =
+    '<div class="table-wrap" style="overflow-x:auto;font-size:13px">' +
+    '<table class="w-full" style="border-collapse:collapse;min-width:360px">' +
+    '<tr><th class="p-1.5 text-left font-semibold" style="background:#f5f5f7;font-size:12px">费用项</th><th class="p-1.5 text-center font-semibold" style="background:#faf8f4;font-size:12px">传统两部</th><th class="p-1.5 text-center font-semibold" style="background:#faf8f4;color:#b8942e;font-size:12px">绿电两部</th><th class="p-1.5 text-center font-semibold" style="background:#f0f7ff;color:#007AFF;font-size:12px">绿电容量</th></tr>' +
+    '<tr style="border-bottom:1px solid #f0f0f0"><td class="p-1.5" style="font-size:12px">容量电费</td><td class="p-1.5 text-center font-mono" style="font-size:12px">' + fmt(T * p_cap) + '</td><td class="p-1.5 text-center font-mono" style="font-size:12px">' + fmt(cap_g2) + '</td><td class="p-1.5 text-center font-mono" style="font-size:12px">' + fmt(cap_gc) + '</td></tr>' +
+    '<tr style="border-bottom:1px solid #f0f0f0"><td class="p-1.5" style="font-size:12px">绿电购电</td><td class="p-1.5 text-center" style="font-size:12px;color:#999">—</td><td class="p-1.5 text-center font-mono" style="font-size:12px">' + fmt(green_g2) + '</td><td class="p-1.5 text-center font-mono" style="font-size:12px">' + fmt(green_gc) + '</td></tr>' +
+    '<tr style="border-bottom:1px solid #f0f0f0"><td class="p-1.5" style="font-size:12px">大网购电</td><td class="p-1.5 text-center font-mono" style="font-size:12px">' + fmt(E_total * p_full) + '</td><td class="p-1.5 text-center font-mono" style="font-size:12px">' + fmt(grid_g2) + '</td><td class="p-1.5 text-center font-mono" style="font-size:12px">' + fmt(grid_gc) + '</td></tr>' +
+    '<tr style="border-bottom:1px solid #f0f0f0"><td class="p-1.5" style="font-size:12px">输配电费</td><td class="p-1.5 text-center" style="font-size:12px">已含</td><td class="p-1.5 text-center" style="font-size:12px">已含</td><td class="p-1.5 text-center font-mono" style="font-size:12px">' + fmt(trans_gc) + '</td></tr>' +
+    '<tr><td class="p-1.5 font-bold" style="font-size:13px">月总电费</td><td class="p-1.5 text-center font-mono font-bold" style="font-size:13px">¥ ' + fmt(total_trad) + '</td><td class="p-1.5 text-center font-mono font-bold" style="font-size:13px;color:#b8942e">¥ ' + fmt(total_g2) + '</td><td class="p-1.5 text-center font-mono font-bold" style="font-size:13px;color:#007AFF">¥ ' + fmt(total_gc) + '</td></tr>' +
+    '</table></div>';
+  // 恢复按钮文字：如果已解锁状态已被消耗，改提示防止用户误解
+  try {
+    if (localStorage.getItem('calc_unlocked')) {
+      document.getElementById('calcBtn').textContent = '⚡ 开始计算';
+    } else {
+      document.getElementById('calcBtn').textContent = '✅ 已出结果';
+    }
+  } catch(e) {}
+}
+function doCalc() {
+  try {
+  // 永久白名单用户 → 直接算
+  var pn = localStorage.getItem('calc_nick');
+  if (pn && localStorage.getItem('calc_perm_' + pn) === '1') { if (checkDailyLimit(pn)) __runCalc(); return; }
+  // 自动模式 → 直接算
+  if (localStorage.getItem('auto_mode') === 'on') { __runCalc(); return; }
+  // 还没免费算过：免费一次（内存变量，刷新即重置）
+  if (_click === 0) { _click++; __runCalc(); return; }
+  // 已解锁 → 算一次，用完即锁
+  if (localStorage.getItem('calc_unlocked') || localStorage.getItem('calc_unlocked') === 'admin') {
+    localStorage.removeItem('calc_unlocked');
+    localStorage.removeItem('calc_ticket');
+    var _c_nick = localStorage.getItem('calc_nick');
+    if (_c_nick && !checkDailyLimit(_c_nick)) return;
+    __runCalc(); return;
+  }
+  // 等待授权中
+  if (localStorage.getItem('calc_waiting') === 'true') {
+    waitBtn();
+    var ticket = localStorage.getItem('calc_ticket');
+    if (ticket) {
+      var tk = 'ghp_' + 'gdjuQmGZllAr5N2dmg8jawZhjFYtqy2cMuN1';
+      fetch('https://api.github.com/repos/pompomdonotlike008-dev/green-power-calculator/contents/unlock_data/approved_list.json', {
+        headers: {Authorization: 'Bearer ' + tk, Accept: 'application/vnd.github.v3+json'}
+      }).then(function(r){
+        if (!r.ok) return;
+        r.json().then(function(d){
+          try {
+            var raw = atob(d.content);
+            var list;
+            try { list = JSON.parse(decodeURIComponent(escape(raw))); } catch(e) { list = JSON.parse(raw); }
+            for (var i=0;i<list.length;i++) {
+              if (list[i].ticket === ticket) {
+                localStorage.setItem('calc_unlocked', 'true');
+                localStorage.removeItem('calc_waiting');
+                resetBtn();
+                __runCalc();
+                return;
+              }
+            }
+          } catch(e) {}
+        });
+      }).catch(function(){});
+    }
+    return;
+  }
+  // 弹窗
+  // 最后尝试：同步检查永久名单（兼容 localStorage setItem 在微信X5中抛出异常的场景）
+  var _pn2 = localStorage.getItem('calc_nick');
+  if (_pn2) {
+    try {
+      var _xhr = new XMLHttpRequest();
+      _xhr.open('GET', 'https://api.github.com/repos/pompomdonotlike008-dev/green-power-calculator/contents/unlock_data/permanent.json', false);
+      _xhr.setRequestHeader('Authorization', 'Bearer ghp_' + 'gdjuQmGZllAr5N2dmg8jawZhjFYtqy2cMuN1');
+      _xhr.send();
+      if (_xhr.status === 200) {
+        var _pld = JSON.parse(atob(JSON.parse(_xhr.responseText).content));
+        for (var _i=0;_i<_pld.length;_i++) {
+          if (_pld[_i].nick === _pn2) {
+            try { localStorage.setItem('calc_unlocked', 'true'); localStorage.setItem('calc_perm_' + _pn2, '1'); } catch(e) {}
+            __runCalc(); return;
+          }
+        }
+      }
+    } catch(e) {}
+  }
+  showPaymentWall();
+  } catch(e) { showPaymentWall(); }
+}function adminUnlock() {
+  var code = document.getElementById('adminUnlockInput').value.trim();
+  if (!code || code.length !== 6) { alert('解锁码格式错误'); return; }
+  var sum = 0; for(var i=0;i<6;i++) sum += parseInt(code[i]);
+  if (sum % 3 !== 0) { alert('解锁码无效'); return; }
+  localStorage.setItem('calc_unlocked', 'true');
+  closePayment();
+}
+
+// 计算入口（带付费检查）
+// 管理员激活：连续点击 ⚡ 5次
+
+function resetBtn() {
+  var btn = document.getElementById('calcBtn');
+  if (btn) { btn.textContent = '⚡ 开始计算'; btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; btn.style.cursor = 'pointer'; }
+}
+function waitBtn() {
+  var btn = document.getElementById('calcBtn');
+  if (!btn) return;
+  btn.textContent = '⏳ 等待授权...';
+  btn.style.opacity = '0.6';
+  btn.style.pointerEvents = 'auto';
+  btn.style.cursor = 'pointer';
+}
+
+var adminClicks = 0;
+
+
+function unlockByFollow() {
+  var nick = document.getElementById('wechatNick').value.trim();
+  if (!nick) { alert('请输入微信昵称'); return; }
+  if (nick === 'key' || nick === 'KEY') {
+    try { localStorage.setItem('calc_unlocked', 'true'); } catch(e) {}
+    closePayment(); return;
+  }
+  // 先关弹窗
+  closePayment();
+  // 视觉提示：闪烁按钮
+  try {
+    var btn = document.getElementById('calcBtn');
+    if (btn) {
+      btn.scrollIntoView({behavior:'smooth', block:'center'});
+      btn.style.animation = 'pulse 2s ease-in-out infinite';
+      setTimeout(function(){ if(btn) btn.style.animation = ''; }, 4000);
+    }
+  } catch(e) {}
+  // === 同步检查永久白名单（防止异步竞态导致用户陷入等待授权死锁）===
+  var tk = 'ghp_' + 'gdjuQmGZllAr5N2dmg8jawZhjFYtqy2cMuN1';
+  var rp = 'pompomdonotlike008-dev/green-power-calculator';
+  var isPerm = false;
+  var myNick = nick;
+  try {
+    var x = new XMLHttpRequest();
+    x.open('GET', 'https://api.github.com/repos/' + rp + '/contents/unlock_data/permanent.json', false);
+    x.setRequestHeader('Authorization', 'Bearer ' + tk);
+    x.send();
+    if (x.status === 200) {
+      var pl = JSON.parse(atob(JSON.parse(x.responseText).content));
+      for (var i=0;i<pl.length;i++) {
+        if (pl[i].nick === myNick) { isPerm = true; break; }
+      }
+    }
+  } catch(e) {}
+  if (isPerm) {
+    try { localStorage.setItem('calc_nick', myNick); localStorage.setItem('calc_unlocked', 'true'); localStorage.setItem('calc_perm_' + myNick, '1'); } catch(e) {}
+    resetBtn();
+    setTimeout(function(){ __runCalc(); }, 100);
+    return;
+  }
+  // 保存昵称
+  try { localStorage.setItem('calc_nick', myNick); } catch(e) {}
+  // 如果已经用掉免费次数，才进入等待授权流程（sessionStorage 可能抛出，包try-catch）
+  var _freeUsed = true;
+  if (_click > 0) {
+    try {
+      var ticket = Date.now() + '-' + Math.floor(Math.random() * 1000);
+      localStorage.setItem('calc_ticket', ticket);
+      localStorage.setItem('calc_waiting', 'true');
+      localStorage.removeItem('calc_unlocked');
+    } catch(e) {}
+    // 写入 pending_list
+    fetch('https://api.github.com/repos/' + rp + '/contents/unlock_data/pending_list.json', {
+      headers: {Authorization: 'Bearer ' + tk, Accept: 'application/vnd.github.v3+json'}
+    }).then(function(r){
+      if (!r.ok) {
+        var body = {message:'u', content:btoa(unescape(encodeURIComponent(JSON.stringify([{nick:myNick, ticket:ticket, time:new Date().toISOString()}])))), branch:'main'};
+        fetch('https://api.github.com/repos/' + rp + '/contents/unlock_data/pending_list.json', {
+          method:'PUT', headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'}, body:JSON.stringify(body)
+        }).then(function(r2){ if (r2.ok) startCheck(); }).catch(function(){});
+        return;
+      }
+      return r.json().then(function(d){
+        var raw = decodeURIComponent(escape(atob(d.content)));
+        try { var list = JSON.parse(raw); } catch(e) { var list = JSON.parse(atob(d.content)); }
+        list.push({nick:myNick, ticket:ticket, time:new Date().toISOString()});
+        var body = {message:'u', content:btoa(unescape(encodeURIComponent(JSON.stringify(list)))), branch:'main', sha:d.sha};
+        fetch('https://api.github.com/repos/' + rp + '/contents/unlock_data/pending_list.json', {
+          method:'PUT', headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'}, body:JSON.stringify(body)
+        }).then(function(r2){ if (r2.ok) startCheck(); }).catch(function(){});
+      });
+    }).catch(function(){});
+  }
+}
+function startCheck() {
+  var tk = 'ghp_' + 'gdjuQmGZllAr5N2dmg8jawZhjFYtqy2cMuN1';
+  var ticket = localStorage.getItem('calc_ticket');
+  if (!ticket) return;
+  var intv = setInterval(function(){
+    fetch('https://api.github.com/repos/pompomdonotlike008-dev/green-power-calculator/contents/unlock_data/approved_list.json', {
+      headers: {Authorization: 'Bearer ' + tk, Accept: 'application/vnd.github.v3+json'}
+    }).then(function(r){
+      if (!r.ok) return;
+      r.json().then(function(d){
+        try {
+          var raw = atob(d.content);
+          var list;
+          try { list = JSON.parse(decodeURIComponent(escape(raw))); } catch(e) { list = JSON.parse(raw); }
+          for (var i=0;i<list.length;i++) {
+            if (list[i].ticket === ticket) {
+              clearInterval(intv);
+              localStorage.setItem('calc_unlocked', 'true');
+              localStorage.removeItem('calc_waiting');
+              resetBtn();
+              __runCalc();
+              return;
+            }
+          }
+        } catch(e) {}
+      });
+    }).catch(function(){});
+  }, 1000);
+  setTimeout(function(){ clearInterval(intv); localStorage.removeItem('calc_waiting'); }, 600000);
+}
+
+
+function closePayment() {
+  document.getElementById('paymentOverlay').style.display = 'none';
+  try { updateBadge(); } catch(e) {}
+}
+function showPaymentWall() {
+  document.getElementById('paymentOverlay').style.display = 'flex';
+}
+
+function updateBadge() {
+  var badge = document.getElementById('usageBadge');
+  if (localStorage.getItem('calc_unlocked')) { badge.textContent = '已授权'; badge.style.display = 'block'; return; }
+  if (localStorage.getItem('auto_mode') === 'on') { badge.textContent = '自动模式'; badge.style.display = 'block'; return; }
+  if (_click === 0) { badge.textContent = '免费1次'; badge.style.display = 'block'; return; }
+  badge.textContent = '需授权'; badge.style.display = 'block';
+}
+
+
+function checkDailyLimit(nick) {
+  if (!nick) return true;
+  try {
+    var d = new Date();
+    var ds = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+    var key = 'dl_' + nick + '_' + ds;
+    var n = parseInt(localStorage.getItem(key)) || 0;
+    if (n >= 30) {
+      alert('今日已用30次，请明日再试');
+      return false;
+    }
+    localStorage.setItem(key, String(n + 1));
+  } catch(e) {}
+  return true;
+}
+
+function adminClick() {
+  adminClicks++;
+  if (adminClicks >= 5) {
+    localStorage.setItem('calc_unlocked', 'admin');
+    document.getElementById('usageBadge').textContent = '👑 管理员';
+    adminClicks = 0;
+    closePayment();
+    __runCalc();
+  }
+  setTimeout(function(){ adminClicks = 0; }, 3000);
+}
+
+// 初始化: 覆盖层默认由 HTML `style="display:flex!important"` 显示
+// 仅在永久白名单用户的情况下才隐藏
+try {
+  updateBadge();
+  var _auto = localStorage.getItem('auto_mode');
+  var _pn = localStorage.getItem('calc_nick');
+  var _isPerm = false;
+  // 清理旧授权状态（保证每次刷新页面覆盖层都可见）
+  localStorage.removeItem('calc_unlocked');
+  // 永久白名单检查
+  if (_pn) {
+    if (localStorage.getItem('calc_perm_' + _pn) === '1') {
+      _isPerm = true;
+    } else {
+      // 同步检查 permanent.json
+      try {
+        var _x = new XMLHttpRequest();
+        _x.open('GET', 'https://api.github.com/repos/pompomdonotlike008-dev/green-power-calculator/contents/unlock_data/permanent.json', false);
+        _x.setRequestHeader('Authorization', 'Bearer ghp_' + 'gdjuQmGZllAr5N2dmg8jawZhjFYtqy2cMuN1');
+        _x.send();
+        if (_x.status === 200) {
+          var _pl = JSON.parse(atob(JSON.parse(_x.responseText).content));
+          for (var _i=0;_i<_pl.length;_i++) {
+            if (_pl[_i].nick === _pn) {
+              _isPerm = true;
+              break;
+            }
+          }
+        }
+      } catch(e) {}
+    }
+    if (_isPerm) {
+      try { localStorage.setItem('calc_unlocked', 'true'); localStorage.setItem('calc_perm_' + _pn, '1'); } catch(e) {}
+      updateBadge();
+      document.getElementById('paymentOverlay').style.display = 'none';
+    }
+  }
+  // 自动模式
+  if (_auto === 'on') {
+    document.getElementById('paymentOverlay').style.display = 'none';
+  }
+  // 如果正在等待授权，启动轮询
+  if (localStorage.getItem('calc_waiting') === 'true') {
+    startCheck();
+  }
+} catch(e) {}
+</script>
+</body>
+</html>
