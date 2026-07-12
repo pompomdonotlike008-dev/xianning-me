@@ -57,6 +57,16 @@ label{display:block;font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:4
 .section-title{font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .chart-container{position:relative;height:280px;width:100%}
 .scroll-hint{font-size:12px;color:#c7c7cc;text-align:right;margin-top:4px}
+.principles{font-size:14px;line-height:1.7;color:#333}
+.principles .formula{background:#f8f9fa;padding:10px 16px;border-radius:10px;margin:6px 0;font-family:'SF Mono','Menlo','Consolas',monospace;font-size:13px;overflow-x:auto;white-space:pre-wrap;word-break:break-all}
+.principles .calc-step{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #eee}
+.principles .calc-step .label{color:#555}
+.principles .calc-step .value{font-weight:600;font-variant-numeric:tabular-nums}
+.principles .result-highlight{background:#e8f5e9;padding:8px 14px;border-radius:8px;font-weight:600;display:inline-block}
+details.principles-details{background:#fafafa;border-radius:12px;padding:0;overflow:hidden;border:1px solid #e5e5ea}
+details.principles-details summary{padding:14px 20px;cursor:pointer;font-weight:600;font-size:15px;color:#1a1a1a;background:#f5f5f7;user-select:none}
+details.principles-details summary:hover{background:#f0f0f2}
+details.principles-details .principles-content{padding:16px 20px 20px}
 @media(max-width:640px){.card{padding:16px;border-radius:16px}.result-value{font-size:24px}.mode-tab{padding:8px 16px;font-size:13px}.btn-primary{width:100%}}
 </style>
 </head>
@@ -413,6 +423,14 @@ label{display:block;font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:4
             </table>
           </div>
         </div>
+      </div>
+
+      <!-- Calculation Principles -->
+      <div class="mt-6">
+        <details class="principles-details">
+          <summary>📐 查看计算原理</summary>
+          <div class="principles-content" id="principlesContent"></div>
+        </details>
       </div>
     </div>
   </div>
@@ -847,6 +865,11 @@ function calculate() {
   // Show results
   document.getElementById('results').style.display = '';
   document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Render calculation principles
+  renderPrinciples(capacity, sunHours, pr, degY1, degYn, retailPrice, selfUseRatio, feedInPrice,
+    initialInvestment, omRate, insRate, invCost, invYears, calcYears, yearlyGen, cashFlows,
+    npv, irr, payback, lcoe, province, pData, allCFs, discountRate, taxRate, annualBaseGen);
 }
 
 // ============================================================
@@ -1001,7 +1024,88 @@ function renderRevenueChart(firstYear) {
 }
 
 // ============================================================
-// 8. EXPORT
+// 7b. RENDER CALCULATION PRINCIPLES
+// ============================================================
+function renderPrinciples(capacity, sunHours, pr, degY1, degYn, retailPrice, selfUseRatio, feedInPrice,
+  initialInvestment, omRate, insRate, invCost, invYears, calcYears, yearlyGen, cashFlows,
+  npv, irr, payback, lcoe, province, pData, allCFs, discountRate, taxRate, annualBaseGen) {
+
+  var html = '<div class="principles">';
+
+  // === 1. 发电量计算 ===
+  html += '<div class="font-bold text-sm mb-2" style="color:#e65100">☀️ 发电量计算</div>';
+  var firstGen = annualBaseGen * pr * (1 - degY1/100);
+  html += '<div class="formula">年发电量 = 装机容量 × 年利用小时数 × 系统效率(PR) × 衰减因子</div>';
+  html += '<div class="calc-step"><span class="label">首年发电量</span><span class="value">' + fmt(Math.round(capacity)) + ' kWp × ' + sunHours + ' h × ' + (pr*100).toFixed(0) + '% × ' + (1-degY1/100*1).toFixed(4) + ' = <b>' + fmt(Math.round(firstGen)) + ' kWh</b></span></div>';
+  html += '<div class="calc-step"><span class="label">25 年总发电量</span><span class="value"><b>' + fmt(Math.round(yearlyGen.reduce(function(s,g){return s+g.gen},0))) + ' kWh</b></span></div>';
+  html += '<div class="calc-step"><span class="label">年均衰减</span><span class="value">首年 ' + degY1 + '%，此后每年 ' + degYn + '%</span></div>';
+
+  // === 2. 收益计算 ===
+  html += '<div class="font-bold text-sm mt-4 mb-2" style="color:#007AFF">💰 收益计算</div>';
+  html += '<div class="formula">自发自用收益 = 发电量 × 自发自用比例 × 目录电价</div>';
+  html += '<div class="formula">余电上网收益 = 发电量 × (1 − 自发自用比例) × 上网电价</div>';
+  var selfRevY1 = firstGen * selfUseRatio * retailPrice;
+  var feedRevY1 = firstGen * (1 - selfUseRatio) * feedInPrice;
+  html += '<div class="calc-step"><span class="label">自发自用收益（首年）</span><span class="value">' + fmt(Math.round(firstGen)) + ' kWh × ' + (selfUseRatio*100).toFixed(0) + '% × ' + retailPrice.toFixed(4) + ' 元 = <b>' + fmtMoney(Math.round(selfRevY1)) + '</b></span></div>';
+  html += '<div class="calc-step"><span class="label">余电上网收益（首年）</span><span class="value">' + fmt(Math.round(firstGen)) + ' kWh × ' + ((1-selfUseRatio)*100).toFixed(0) + '% × ' + feedInPrice.toFixed(4) + ' 元 = <b>' + fmtMoney(Math.round(feedRevY1)) + '</b></span></div>';
+  html += '<div class="calc-step"><span class="label">首年总收益</span><span class="value"><b>' + fmtMoney(Math.round(selfRevY1 + feedRevY1)) + '</b></span></div>';
+  html += '<div class="calc-step"><span class="label">25 年总收益</span><span class="value"><b>' + fmtMoney(Math.round(cashFlows.reduce(function(s,cf){return s+cf.totalRev},0))) + '</b></span></div>';
+
+  // === 3. 成本计算 ===
+  html += '<div class="font-bold text-sm mt-4 mb-2" style="color:#c62828">🏗️ 成本计算</div>';
+  var omCostY1 = initialInvestment * (omRate/100);
+  var insCostY1 = initialInvestment * (insRate/100);
+  var invReplaceCost = invCost * capacity * 1000;
+  var computedUnitCost = initialInvestment / 1000 / capacity;
+  html += '<div class="formula">初始投资 = 装机容量 × 系统单价</div>';
+  html += '<div class="calc-step"><span class="label">初始投资</span><span class="value">' + fmt(Math.round(capacity)) + ' kWp × ' + computedUnitCost.toFixed(1) + ' 元/Wp × 1000 = <b>' + fmtMoney(Math.round(initialInvestment)) + '</b></span></div>';
+  html += '<div class="calc-step"><span class="label">年运维成本</span><span class="value">' + fmtMoney(Math.round(initialInvestment)) + ' × ' + omRate.toFixed(1) + '% = <b>' + fmtMoney(Math.round(omCostY1)) + '/年</b></span></div>';
+  html += '<div class="calc-step"><span class="label">年保险成本</span><span class="value">' + fmtMoney(Math.round(initialInvestment)) + ' × ' + insRate.toFixed(1) + '% = <b>' + fmtMoney(Math.round(insCostY1)) + '/年</b></span></div>';
+  html += '<div class="calc-step"><span class="label">逆变器更换</span><span class="value">第 ' + invYears.join('、') + ' 年 · 每次 ' + fmtMoney(Math.round(invReplaceCost)) + '</span></div>';
+  html += '<div class="calc-step"><span class="label">全生命周期总成本</span><span class="value"><b>' + fmtMoney(Math.round(initialInvestment + cashFlows.reduce(function(s,cf){return s+cf.totalCost},0))) + '</b></span></div>';
+
+  // === 4. 财务指标 ===
+  html += '<div class="font-bold text-sm mt-4 mb-2" style="color:#2e7d32">📊 财务指标计算</div>';
+
+  // Payback
+  html += '<div class="font-bold text-xs mt-2" style="color:#555">回本周期</div>';
+  html += '<div class="formula">累计现金流首次 ≥ 0 的年份。逐年累计，找到转负为正的节点。</div>';
+  var cumPrinciple = -initialInvestment;
+  var paybackYr = 0;
+  for (var y = 0; y < cashFlows.length; y++) {
+    cumPrinciple += cashFlows[y].projectCF;
+    if (cumPrinciple >= 0 && paybackYr === 0) paybackYr = cashFlows[y].year;
+  }
+  html += '<div class="calc-step"><span class="label">回本节点</span><span class="value">第 <b>' + paybackYr + '</b> 年累计现金流转正（' + (payback < calcYears ? payback.toFixed(1) + ' 年' : '>'+calcYears+'年') + '）</span></div>';
+
+  // IRR
+  html += '<div class="font-bold text-xs mt-2" style="color:#555">内部收益率（IRR）</div>';
+  html += '<div class="formula">令 Σ(CFt / (1+IRR)^t) = 0，使用 Newton 法迭代求解</div>';
+  html += '<div class="formula">CF₀ = −' + fmtMoney(Math.round(initialInvestment)) + '（初始投资）</div>';
+  html += '<div class="formula">CF₁~' + calcYears + ' = 年净现金流（逐年变化）</div>';
+  html += '<div class="calc-step"><span class="label">IRR</span><span class="value"><b>' + (irr*100).toFixed(2) + '%</b></span></div>';
+
+  // NPV
+  html += '<div class="font-bold text-xs mt-2" style="color:#555">净现值（NPV）</div>';
+  html += '<div class="formula">NPV = Σ(CFt / (1+r)^t) ，折现率 r = ' + (discountRate*100).toFixed(1) + '%</div>';
+  var npvDetail = '';
+  for (var y = 0; y < Math.min(3, allCFs.length); y++) {
+    var cf = allCFs[y];
+    npvDetail += (y > 0 ? ' + ' : '') + fmtMoney(Math.round(cf.cf)) + '/(1+' + (discountRate*100).toFixed(1) +'%)^' + cf.year;
+  }
+  if (allCFs.length > 3) npvDetail += ' + …（共 ' + calcYears + ' 年）';
+  html += '<div class="formula">' + npvDetail + '</div>';
+  html += '<div class="calc-step"><span class="label">NPV</span><span class="value"><b>' + fmtMoney(Math.round(npv)) + '</b>（' + (npv>=0?'✅ 项目在折现率要求下盈利':'⚠️ 项目未达到折现率要求') + '）</span></div>';
+
+  // LCOE
+  html += '<div class="font-bold text-xs mt-2" style="color:#555">度电成本（LCOE）</div>';
+  html += '<div class="formula">LCOE = Σ(成本t / (1+r)^t) ÷ Σ(发电量t / (1+r)^t)</div>';
+  html += '<div class="formula">将全生命周期各年成本（初始投资 + 运维 + 保险 + 逆变器更换）和发电量分别折现后相除。</div>';
+  html += '<div class="calc-step"><span class="label">LCOE</span><span class="value"><b>' + lcoe.toFixed(4) + ' 元/kWh</b>（' + (lcoe < retailPrice ? '✅ 低于目录电价 ' + retailPrice.toFixed(4) + ' 元/kWh' : '⚠️ 高于目录电价') + '）</span></div>';
+
+  html += '</div>';
+  document.getElementById('principlesContent').innerHTML = html;
+}
 // ============================================================
 function exportCSV() {
   var rows = [['年份','发电量(kWh)','自发自用收益(元)','余电收益(元)','运维成本(元)','净现金流(元)','累计现金流(元)']];
