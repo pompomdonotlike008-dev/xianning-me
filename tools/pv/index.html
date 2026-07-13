@@ -185,7 +185,7 @@ details.principles-details .principles-content{padding:16px 20px 20px}
           </div>
           <!-- 8760 Import -->
           <div class="param-card">
-            <label style="font-size:14px">📂 上传 8760 逐时数据（可选）<span class="tooltip-info" title="上传格式参考储能倒算器：Excel 文件，包含时序负荷/发电数据。上传后自动计算年发电量">?</span></label>
+            <label style="font-size:14px">📂 上传 8760 逐时发电数据（可选）<span class="tooltip-info" title="上传 Excel 文件，工具自动识别发电数据列">?</span></label>
             <div class="mt-2">
               <div class="import-zone" id="importZone" onclick="document.getElementById('fileInput').click()">
                 <div class="text-3xl mb-2">📄</div>
@@ -194,6 +194,26 @@ details.principles-details .principles-content{padding:16px 20px 20px}
               </div>
               <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleFile(event)">
             </div>
+            <details style="margin-top:8px;font-size:12px;color:#86868b">
+              <summary style="cursor:pointer;font-weight:500">📋 查看表格格式要求</summary>
+              <div style="margin-top:6px;padding:10px;background:#fafafa;border-radius:8px;line-height:1.6">
+                <p><b>格式说明：</b></p>
+                <p>• Excel 文件，至少包含一列发电数据（kW 或 kWh）</p>
+                <p>• 数据行数 = 8760 行（全年逐小时），或至少覆盖一个完整周期</p>
+                <p>• 工具自动识别发电数据列，无需指定列名</p>
+                <p style="margin-top:6px"><b>示例：</b></p>
+                <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:4px">
+                  <tr style="background:#e5e5ea"><th style="padding:4px 8px;border:1px solid #ddd;text-align:left">时间</th><th style="padding:4px 8px;border:1px solid #ddd;text-align:right">发电量(kW)</th></tr>
+                  <tr><td style="padding:4px 8px;border:1px solid #ddd">2026-01-01 00:00</td><td style="padding:4px 8px;border:1px solid #ddd;text-align:right">0</td></tr>
+                  <tr><td style="padding:4px 8px;border:1px solid #ddd">2026-01-01 01:00</td><td style="padding:4px 8px;border:1px solid #ddd;text-align:right">0</td></tr>
+                  <tr><td style="padding:4px 8px;border:1px solid #ddd">...</td><td style="padding:4px 8px;border:1px solid #ddd;text-align:right">...</td></tr>
+                  <tr><td style="padding:4px 8px;border:1px solid #ddd">2026-01-01 12:00</td><td style="padding:4px 8px;border:1px solid #ddd;text-align:right">425.3</td></tr>
+                  <tr><td style="padding:4px 8px;border:1px solid #ddd">...</td><td style="padding:4px 8px;border:1px solid #ddd;text-align:right">...</td></tr>
+                  <tr><td style="padding:4px 8px;border:1px solid #ddd">2026-12-31 23:00</td><td style="padding:4px 8px;border:1px solid #ddd;text-align:right">0</td></tr>
+                </table>
+                <p style="margin-top:6px;color:#e65100">💡 可以使用储能配置倒算器配套的 8760 模板表格</p>
+              </div>
+            </details>
           </div>
         </div>
 
