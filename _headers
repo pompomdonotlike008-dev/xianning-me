@@ -1,0 +1,7 @@
+# Cloudflare Pages 自定义响应头
+# 确保 .xlsx 文件以正确格式下载，避免中文名乱码
+
+/downloads/*.xlsx
+  Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  Content-Disposition: attachment
+  X-Content-Type-Options: nosniff
