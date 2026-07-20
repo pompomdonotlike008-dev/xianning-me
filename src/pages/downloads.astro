@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="小报童专栏 · 配套数据表下载" description="王炸小纸条小报童专栏的配套数据表下载导航">
+
+  <main style="max-width: 680px; margin: 0 auto; padding: 80px 24px 60px;">
+    <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em;">📎 配套数据表下载</h1>
+    <p style="color: #86868b; font-size: 0.95rem; margin-bottom: 40px;">王炸小纸条 · 小报童专栏</p>
+
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+      <!-- 第1篇 -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+          <div>
+            <span class="badge">第1篇</span>
+            <h2 style="font-size: 1.1rem; font-weight: 700; margin: 8px 0 4px;">114号文容量补偿：三省份实战算例</h2>
+            <p style="font-size: 0.85rem; color: #86868b; margin: 0;">陕西/甘肃/浙江三省份对比 · 含敏感性分析</p>
+          </div>
+          <a href="/downloads/三省份容量补偿对照表.xlsx" class="dl-btn" download>下载</a>
+        </div>
+      </div>
+
+      <!-- 第2篇 -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+          <div>
+            <span class="badge">第2篇</span>
+            <h2 style="font-size: 1.1rem; font-weight: 700; margin: 8px 0 4px;">1077号文输配电价逐条拆解</h2>
+            <p style="font-size: 0.85rem; color: #86868b; margin: 0;">31省220kV单一制输配电价 · 充电成本测算模板</p>
+          </div>
+          <a href="/downloads/31省输配电价表（220kV单一制）.xlsx" class="dl-btn" download>下载</a>
+        </div>
+      </div>
+
+      <!-- 第3篇 -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+          <div>
+            <span class="badge">第3篇</span>
+            <h2 style="font-size: 1.1rem; font-weight: 700; margin: 8px 0 4px;">独立储能收益测算器完整指南</h2>
+            <p style="font-size: 0.85rem; color: #86868b; margin: 0;">5个真实案例参数 · IRR敏感性分析模板</p>
+          </div>
+          <a href="/downloads/三省份容量补偿对照表.xlsx" class="dl-btn" download>下载</a>
+        </div>
+      </div>
+
+      <!-- 第8篇 -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+          <div>
+            <span class="badge">第8篇</span>
+            <h2 style="font-size: 1.1rem; font-weight: 700; margin: 8px 0 4px;">13省容量补偿标准完整表</h2>
+            <p style="font-size: 0.85rem; color: #86868b; margin: 0;">已核验各省发改委公开文件 · 含文件出处链接</p>
+          </div>
+          <a href="/downloads/13省容量补偿标准完整表（含出处）.xlsx" class="dl-btn" download>下载</a>
+        </div>
+      </div>
+
+    </div>
+
+    <p style="font-size: 0.82rem; color: #a1a1a6; text-align: center; margin-top: 48px;">专栏持续更新中，配套数据表在此页面同步补充。</p>
+  </main>
+
+</BaseLayout>
+
+<style>
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .badge {
+    display: inline-block;
+    background: #34C759;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.02em;
+  }
+  .dl-btn {
+    display: inline-flex;
+    align-items: center;
+    background: #34C759;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .dl-btn:hover {
+    background: #2da94e;
+    transform: translateY(-1px);
+    opacity: 1;
+  }
+</style>
