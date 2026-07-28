@@ -1,0 +1,311 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title="算力中心搞绿电直连，到底能省多少电费？算给你看"
+  description="双回路供电这个现实约束，让很多账跟纸上算的不一样。全部参数取自江西省220kV公开电价数据。"
+  date="2026-07-28"
+  tag="算电协同"
+  backUrl={`${import.meta.env.BASE_URL}energy`}
+  backLabel="返回新能源"
+>
+  <p>算电协同喊了半年。34号文定方向，688号文给路径，1192号文算电费。</p>
+  <p>但<strong>双回路供电</strong>这个现实约束，让很多账跟纸上算的不一样。本文参数全部取自江西省220kV等级公开电价数据，标注出处，你可以代入自己的参数重算。</p>
+
+  <hr />
+
+  <h2>一、先搞清楚：绿电直连是怎么省钱的</h2>
+
+  <p>算力中心的电费账单，传统模式由五笔费用组成：</p>
+  <p><strong>到户电价 = 上网电价 + 输配电价 + 系统运行费 + 线损费 + 政府基金</strong></p>
+
+  <p>走绿电直连后，省钱来自两个方向：</p>
+
+  <p><strong>变化一：输配电费可选容量制</strong></p>
+  <p>绿电直连项目有两种输配电价模式可选——两部制（基本电费+电量电费，全部用电量都交）或容量制（固定月费）。选哪种取决于负载率与省平均负荷率的比较。</p>
+
+  <p><strong>变化二：自发自用的电量，免交系统运行费和线损费</strong></p>
+  <p>这是1192号文最值钱的规则。直联项目的自发自用电量不用交这两笔钱。</p>
+  <p>但有个关键现实约束：<strong>算力中心必须双回路供电。</strong></p>
+
+  <hr />
+
+  <h2>二、双回路为什么关键</h2>
+
+  <p>算力中心T3+要求两路独立电源，一主一备。</p>
+
+  <pre><code>实际平均负荷 80MW
+→ 双回路 2×100MVA 接入
+→ 总接入容量 = 200MVA
+→ 负载率 = 80 ÷ 200 = 40% —— 不可能超过50%</code></pre>
+
+  <p>而江西省110kV+工商业平均负荷率约 <strong>46%</strong>（来源：1192号文配套参数）。</p>
+
+  <p><strong>40% &lt; 46%</strong> —— 负载率低于省均值，容量制比两部制更贵。所以双回路算力中心应选<strong>两部制</strong>，而不是跟风选容量制。</p>
+
+  <hr />
+
+  <h2>三、逐项算账：传统模式 vs 绿电直连</h2>
+
+  <h3>基础参数</h3>
+
+  <table>
+    <thead><tr><th>参数</th><th>取值</th></tr></thead>
+    <tbody>
+      <tr><td>实际平均负荷</td><td>80MW（年用电量70,080MWh）</td></tr>
+      <tr><td>接入方式</td><td>双回路 2×100MVA</td></tr>
+      <tr><td><strong>负载率</strong></td><td><strong>40%</strong></td></tr>
+      <tr><td>输配电费模式</td><td><strong>两部制</strong>（容量制更贵）</td></tr>
+      <tr><td>自发自用比例</td><td>80%</td></tr>
+    </tbody>
+  </table>
+
+  <h3>电价参数（江西220kV，实际数据）</h3>
+
+  <table>
+    <thead><tr><th>项目</th><th>金额</th><th>出处</th></tr></thead>
+    <tbody>
+      <tr><td>上网电价（购网）</td><td><strong>0.376999 元/kWh</strong></td><td>1192号文实战版</td></tr>
+      <tr><td><strong>PPA绿电协议价</strong></td><td><strong>0.35 元/kWh</strong></td><td>⚠️ 最敏感参数</td></tr>
+      <tr><td>输配电电量电价（220kV两部制）</td><td><strong>0.1105 元/kWh</strong></td><td>1192号文实战版</td></tr>
+      <tr><td>输配电容量电价（220kV按容）</td><td><strong>23.4 元/kVA·月</strong></td><td>1192号文实战版</td></tr>
+      <tr><td>系统运行费</td><td><strong>0.067 元/kWh</strong></td><td>1077号文配套数据</td></tr>
+      <tr><td>线损电价</td><td><strong>0.017833 元/kWh</strong></td><td>线损率3.68%</td></tr>
+      <tr><td>政府基金及附加</td><td><strong>0.02675 元/kWh</strong></td><td>1192号文实战版</td></tr>
+      <tr><td><strong>大网到户总价</strong></td><td><strong>0.567484 元/kWh</strong></td><td>五层合计</td></tr>
+      <tr><td>全省平均负荷率(LFm)</td><td><strong>46%</strong></td><td>1192号文配套参数</td></tr>
+    </tbody>
+  </table>
+
+  <blockquote><p>PPA电价需按实际代入。此处按0.35元/kWh测算，价差仅0.027元/kWh。若拿到0.25-0.28元/kWh的低价PPA，经济性会大幅提升。</p></blockquote>
+
+  <hr />
+
+  <h3>传统模式（全部从电网购电）</h3>
+
+  <pre><code>上网购电费      70,080MWh × 0.376999          = 26,421 万
+输配电基本电费  200MVA × 23.4元 × 12          =  5,616 万
+输配电电量电费  70,080MWh × 0.1105            =  7,744 万
+系统运行费      70,080MWh × 0.067             =  4,695 万
+线损费          70,080MWh × 0.017833          =  1,250 万
+政府基金        70,080MWh × 0.02675           =  1,875 万
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+年总电费                                          47,601 万</code></pre>
+
+  <h3>绿电直连模式（80%自发自用）</h3>
+
+  <p>先确认输配电费模式：</p>
+
+  <pre><code>❌ 容量制 = 200MVA×23.4×12 + 200MVA×730×0.1105×46%×12
+         = 56,160 + 88,958 = 14,512 万/年
+
+✅ 两部制 = 基本电费5,616万 + 电量电费(70,080MWh×0.1105)
+         = 5,616 + 7,744 = 13,360 万/年</code></pre>
+
+  <p>两部制每年比容量制省<strong>1,152万</strong>。选两部制。</p>
+
+  <blockquote><p><strong>注意：</strong>两部制下电量电费按全部用电量（含自发自用）缴纳，绿电部分同样要交。输配电费在传统和直连模式下一致，<strong>不是节省项</strong>。</p></blockquote>
+
+  <p><strong>绿电部分（56,064MWh/年，80%）：</strong></p>
+
+  <table>
+    <thead><tr><th>科目</th><th>计算</th><th>金额</th></tr></thead>
+    <tbody>
+      <tr><td>PPA购电费</td><td>56,064MWh × 0.35</td><td>19,622 万</td></tr>
+      <tr><td>输配电电量电费</td><td>56,064MWh × 0.1105</td><td>6,195 万</td></tr>
+      <tr><td>政府基金</td><td>56,064MWh × 0.02675</td><td>1,500 万</td></tr>
+      <tr><td>系统运行费</td><td>豁免</td><td>0</td></tr>
+      <tr><td>线损费</td><td>豁免</td><td>0</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>下网部分（14,016MWh/年，20%）：</strong></p>
+
+  <table>
+    <thead><tr><th>科目</th><th>计算</th><th>金额</th></tr></thead>
+    <tbody>
+      <tr><td>下网购电费</td><td>14,016MWh × 0.376999</td><td>5,284 万</td></tr>
+      <tr><td>下网输配电电量电费</td><td>14,016MWh × 0.1105</td><td>1,549 万</td></tr>
+      <tr><td>下网系统运行费</td><td>14,016MWh × 0.067</td><td>939 万</td></tr>
+      <tr><td>下网线损费</td><td>14,016MWh × 0.017833</td><td>250 万</td></tr>
+      <tr><td>下网政府基金</td><td>14,016MWh × 0.02675</td><td>375 万</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>不变部分：</strong></p>
+
+  <table>
+    <thead><tr><th>科目</th><th>计算</th><th>金额</th></tr></thead>
+    <tbody>
+      <tr><td>输配电基本电费</td><td>200MVA × 23.4元 × 12</td><td>5,616 万</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>年总电费：41,330 万</strong></p>
+
+  <hr />
+
+  <h3>对比结论</h3>
+
+  <table>
+    <thead><tr><th>项目</th><th>传统模式</th><th>绿电直连</th><th>差异</th></tr></thead>
+    <tbody>
+      <tr><td>年总电费</td><td>47,601 万</td><td>41,330 万</td><td><strong>-6,271 万</strong></td></tr>
+      <tr><td>月均电费</td><td>3,967 万</td><td>3,444 万</td><td>-523 万</td></tr>
+      <tr><td><strong>降幅</strong></td><td>—</td><td>—</td><td><strong>13.2%</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h3>节省来源拆解</h3>
+
+  <table>
+    <thead><tr><th>节省来源</th><th>计算过程</th><th>年节省</th><th>占比</th></tr></thead>
+    <tbody>
+      <tr><td><strong>系统运行费豁免</strong></td><td>56,064MWh × 0.067</td><td><strong>3,756 万</strong></td><td><strong>60%</strong></td></tr>
+      <tr><td><strong>PPA购电价差</strong></td><td>56,064MWh × (0.376999-0.35)</td><td><strong>1,514 万</strong></td><td><strong>24%</strong></td></tr>
+      <tr><td>线损费豁免</td><td>56,064MWh × 0.017833</td><td>1,000 万</td><td>16%</td></tr>
+      <tr><td>输配电费</td><td>无差异</td><td>0</td><td>0%</td></tr>
+      <tr><td><strong>合计</strong></td><td></td><td><strong>6,270 万</strong></td><td><strong>100%</strong></td></tr>
+    </tbody>
+  </table>
+
+  <blockquote><p>两部制下电量电费含全部用电量，输配电费不是节省项。PPA价0.35元/kWh时，价差仅0.027元/kWh，系统运行费豁免占比高达60%。</p></blockquote>
+
+  <hr />
+
+  <h2>四、把算力中心的全部投资算进去</h2>
+
+  <p>前面的对比只算了电费，但投资决策看的不是"电费几个月回本"，而是绿电直连让整个项目的IRR提高了多少。</p>
+
+  <h3>总投资估算</h3>
+
+  <p>一个新建80MW算力中心，全部投资大致如下（不含IT设备，仅基础设施）：</p>
+
+  <table>
+    <thead><tr><th>项目</th><th>金额（万元）</th></tr></thead>
+    <tbody>
+      <tr><td>土地及土建</td><td>12,000-18,000</td></tr>
+      <tr><td>电力系统（主变×2、GIS、开关柜等）</td><td>5,000-8,000</td></tr>
+      <tr><td>冷却系统</td><td>4,000-6,000</td></tr>
+      <tr><td>UPS及后备电源</td><td>3,000-5,000</td></tr>
+      <tr><td>接入专线（接电网，~10km）</td><td>1,000-2,000</td></tr>
+      <tr><td>其他（消防、弱电、安防等）</td><td>2,000-3,000</td></tr>
+      <tr><td><strong>基础设施合计</strong></td><td><strong>27,000-42,000</strong></td></tr>
+    </tbody>
+  </table>
+
+  <blockquote><p>IT设备投资另算，此处暂不纳入，只看基础设施层面电费节省对回报的影响。</p></blockquote>
+
+  <h3>全生命周期对比</h3>
+
+  <p><strong>传统模式下：</strong></p>
+  <pre><code>年电费（传统）      47,601万
+年运维及其他        1,500万
+年折旧（基础设施）   2,000万
+年总成本           51,101万</code></pre>
+
+  <p><strong>绿电直连模式下（PPA 0.35元/kWh）：</strong></p>
+  <pre><code>年电费（绿电直连）   41,330万
+年运维及其他        1,500万
+年折旧             2,000万
+年总成本           44,830万</code></pre>
+
+  <p><strong>年成本节省约6,270万，降幅12.3%。</strong></p>
+
+  <h3>IRR提升</h3>
+
+  <p>以35亿基础设施投资为例，绿电直连每年多产生6,270万的净现金流，<strong>相当于全投资IRR提升约0.5-1.5个百分点</strong>（具体取决于收入和税负结构）。</p>
+
+  <blockquote><p>如果PPA能谈到0.28元/kWh，年节省10,194万，IRR提升幅度翻倍。如果IT设备也纳入总投资（60-80亿），IRR提升约0.3-0.8个百分点。</p></blockquote>
+
+  <p><strong>绿电直连不是让算力中心"赚大钱"的决策，而是让算力中心在同等条件下比同行多出0.5-1.5个点的IRR优势。</strong>在行业平均IRR普遍8-12%的背景下，1个点的差距可能就是"投"与"不投"的分界线。</p>
+
+  <hr />
+
+  <h2>五、对比案例：25%负载率，固定成本压死人</h2>
+
+  <table>
+    <thead><tr><th>参数</th><th>Case A（基准）</th><th>Case B（对比）</th></tr></thead>
+    <tbody>
+      <tr><td>平均负荷</td><td>80MW</td><td><strong>50MW</strong></td></tr>
+      <tr><td>负载率</td><td><strong>40%</strong></td><td><strong>25%</strong></td></tr>
+      <tr><td>PPA电价</td><td>0.35元/kWh</td><td>0.35元/kWh</td></tr>
+      <tr><td>系统运行费</td><td>0.067（江西）</td><td><strong>0.02（吉林水平）</strong></td></tr>
+      <tr><td>专线距离</td><td>20km</td><td>20km</td></tr>
+      <tr><td>自发自用比例</td><td>80%</td><td><strong>60%</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h4>Case B：年节省仅1,705万</h4>
+
+  <table>
+    <thead><tr><th>项目</th><th>Case A（40%负载率）</th><th>Case B（25%负载率）</th></tr></thead>
+    <tbody>
+      <tr><td><strong>年电费节省</strong></td><td><strong>6,270 万</strong></td><td><strong>1,705 万</strong></td></tr>
+      <tr><td>降幅</td><td>13.2%</td><td><strong>5.7%</strong></td></tr>
+      <tr><td>占总投资比例</td><td><strong>1.8%</strong></td><td><strong>0.49%</strong></td></tr>
+      <tr><td><strong>IRR提升（估算）</strong></td><td><strong>0.8-1.5pp</strong></td><td><strong>0.1-0.3pp</strong></td></tr>
+      <tr><td>线路增量投资</td><td>2,250 万</td><td>2,250 万</td></tr>
+    </tbody>
+  </table>
+
+  <p>Case B：负载率仅25%，输配电基本电费（5,616万）占电费比例高达19%，分摊到每度电的成本极高。年节省仅1,705万，IRR提升不到0.3个百分点。线路增量2,250万比年节省1,705万还多——基础固定成本太重，光靠制度豁免和微弱的PPA价差救不回来。</p>
+
+  <hr />
+
+  <h2>六、各省差异（仅系统运行费不同）</h2>
+
+  <p>其余统一取江西值，PPA价0.35元/kWh：</p>
+
+  <table>
+    <thead><tr><th>省份</th><th>系统运行费</th><th>年节省</th><th>降幅</th></tr></thead>
+    <tbody>
+      <tr><td><strong>湖南</strong></td><td>0.12</td><td><strong>9,242 万</strong></td><td><strong>19%</strong></td></tr>
+      <tr><td><strong>山西</strong></td><td>0.10</td><td><strong>8,120 万</strong></td><td><strong>17%</strong></td></tr>
+      <tr><td><strong>浙江</strong></td><td>0.07</td><td><strong>6,438 万</strong></td><td><strong>14%</strong></td></tr>
+      <tr><td>江西</td><td>0.067</td><td>6,270 万</td><td>13%</td></tr>
+      <tr><td>广东</td><td>0.06</td><td>5,878 万</td><td>12%</td></tr>
+      <tr><td>甘肃</td><td>0.045</td><td>5,037 万</td><td>11%</td></tr>
+      <tr><td>吉林</td><td>0.02</td><td>3,635 万</td><td>8%</td></tr>
+    </tbody>
+  </table>
+
+  <blockquote><p>节省 = PPA价差1,514万 + 系统运行费豁免（按省）+ 线损豁免1,000万。</p></blockquote>
+
+  <hr />
+
+  <h2>七、688号文：集群放大效应</h2>
+
+  <p>园区内多家共享专线和主变，接入成本降低20-30%，绿电占比从70%提至85%。</p>
+
+  <hr />
+
+  <h2>八、怎么判断</h2>
+
+  <table>
+    <thead><tr><th>条件</th><th>结论</th></tr></thead>
+    <tbody>
+      <tr><td>系统运行费 ≥ 0.06 + PPA价差≥0.05元/kWh</td><td>✅ 经济性显著</td></tr>
+      <tr><td>系统运行费 ≥ 0.06 + PPA价差&lt;0.03*</td><td>⚠️ 需精确测算，主要靠制度豁免回本</td></tr>
+      <tr><td>系统运行费&lt;0.03 + PPA价差&lt;0.03</td><td>❌ 不建议</td></tr>
+    </tbody>
+  </table>
+
+  <blockquote><p>* PPA价0.35元/kWh时价差仅0.027元/kWh，属于此档。</p></blockquote>
+
+  <p><strong>自行代入模板：</strong></p>
+  <pre><code>① 实际平均负荷 = _____ MW
+② 接入容量 = _____ MVA（双回路=单回路容量×2）
+③ PPA协议价 = _____ 元/kWh
+④ 专线距离 = _____ km
+⑤ 所在省系统运行费 = _____ 元/kWh
+⑥ 年节省 ≈ ⑤×绿电量 + (0.376999-③)×绿电量 + 线损豁免</code></pre>
+
+  <p><strong>PPA价差小的时候，输配电费不是节省项，制度豁免（系统运行费+线损）才是基本盘。</strong></p>
+  <p>PPA电价0.35元/kWh时，年节省6,270万，系统运行费豁免占60%。PPA电价如果能降到0.28元/kWh，年节省就能冲到10,194万。<strong>PPA电价每降0.01元，年节省增加约560万。</strong></p>
+
+  <hr />
+
+  <blockquote><p><em>数据来源：国家发改委1192号文、1077号文。江西省电价参数来自1192号文实战版（2026年5月）和1077号文配套数据。系统运行费截至2026年7月。专线及主变投资为行业参考造价。PPA电价为假设，请以实际报价为准。</em></p></blockquote>
+</ArticleLayout>
