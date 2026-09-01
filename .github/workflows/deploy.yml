@@ -22,6 +22,8 @@ jobs:
       - run: npm ci
 
       - run: npm run build
+        env:
+          ASTRO_BASE: /xianning-me/
 
       - uses: peaceiris/actions-gh-pages@v4
         with:
